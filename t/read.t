@@ -1,49 +1,71 @@
 use Test::More 'no_plan';
 
+use File::Spec::Functions;
+use Test::Output;
+
 my $class  = 'CPAN::PackageDetails';
 my $method = 'read';
 
 use_ok( $class );
-my $file = catfile( t test_files 02.packages.details.txt.gz );
+can_ok( $class, $method );
+
+my $file = catfile( qw(t test_files 02packages.details.txt.gz) );
+ok( -e $file, "Test file $file exists" );
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# Test with no arguments to new
+# Test with single, good argument to read
 {
-my $package_details = $class->new( $file );
+my $package_details = $class->$method( $file );
 isa_ok( $package_details, $class );
+is( $package_details->source_file, $file, "Get back the right filename");
 
-my @instance_methods = qw(header entries header_class entries_class entry_class);
-foreach my $method ( @instance_methods )
-	{
-	can_ok( $package_details, $method );
-	}
-
-# should have the two major components
-isa_ok( $package_details->header,  $package_details->header_class );
-isa_ok( $package_details->entries, $package_details->entries_class );
-
-# should be able to see the defaults
-can_ok( $package_details, 'default_headers' );
-my %hash = $package_details->default_headers;
-foreach my $default ( keys %hash )
-	{
-	can_ok( $package_details, $default );
-	is( $package_details->$default(), $hash{$default}, 
-		"Right default value for $default" );
-	}
-}
-	
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# Test with some arguments to new
-{
-my $url   = 'http://localhost:8088/index.html';
-my $param = 'url';
-
-my $package_details = $class->$method(
-	$param => $url,
+# test with the top level
+# these are values taken from the input file
+is( $package_details->file, '02packages.details.txt', 
+	'file field reports right value from top level' 
 	);
-isa_ok( $package_details, $class );
+is( $package_details->url, 'http://www.perl.com/CPAN/modules/02packages.details.txt', 
+	'url field reports right value from top level'  );
 
-can_ok( $package_details, $param );
-is( $package_details->$param(), $url );
+is( $package_details->line_count, 59754, 
+	'line field reports right value from top level'  );
+
+is( $package_details->count, 59754,
+	"Entries has the right number of elements from delegate level");
+
+# test with the delegate level
+# these are values taken from the input file
+my $header = $package_details->header;
+
+is( $header->file, '02packages.details.txt', 
+	'file field reports right value from delegate level' 
+	);
+is( $header->url, 'http://www.perl.com/CPAN/modules/02packages.details.txt', 
+	'url field reports right value from delegate level'  );
+
+is( $header->line_count, 59754, 
+	'line field reports right value from delegate level'  );
+
+my $entries = $package_details->entries;
+is( $entries->count, 59754, 
+	"Entries has the right number of elements from delegate level");
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Test with no arguments to read - should fail
+stderr_like
+	{ $class->$method() }
+	qr/Missing argument!/,
+	"$method carps when I don't give it an argument";
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Test with a single bad argument to read (missing file) - should fail
+{
+my $missing_file = 'fooey.gz';
+ok( ! -e $missing_file, "Missing file is not there" );
+
+stderr_like
+	{ $class->$method( $missing_file  ) }
+	qr/Could not open/,
+	"$method carps when I don't give it an argument";
 }

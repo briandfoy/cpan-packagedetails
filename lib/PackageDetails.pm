@@ -101,16 +101,16 @@ Returns the keys for the
 
 BEGIN {
 my %defaults = (
-	file          => "02.packages.details.txt.gz",
-	url           => "http://example.com/MyCPAN/modules/02.packages.details.txt",
-	description   => "Package names for my private CPAN",
-	columns       => "package name, version, path",
-	intended_for  => "My private CPAN",
-	written_by    => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
-	last_updated  => scalar localtime,
-	header_class  => 'CPAN::PackageDetails::Header',
-	entries_class => 'CPAN::PackageDetails::Entries',
-	entry_class   => 'CPAN::PackageDetails::Entry',
+	file            => "02packages.details.txt",
+	url             => "http://example.com/MyCPAN/modules/02.packages.details.txt",
+	description     => "Package names for my private CPAN",
+	columns         => "package name, version, path",
+	intended_for    => "My private CPAN",
+	written_by      => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
+	last_updated    => scalar localtime,
+	header_class    => 'CPAN::PackageDetails::Header',
+	entries_class   => 'CPAN::PackageDetails::Entries',
+	entry_class     => 'CPAN::PackageDetails::Entry',
 	);
 	
 sub default_headers
@@ -152,7 +152,7 @@ sub CPAN::PackageDetails::Header::AUTOLOAD
 # them to the right delegate
 my %Dispatch = (
 		header  => { map { $_, 1 } qw(set_header header_exists) },
-		entries => { map { $_, 1 } qw() },
+		entries => { map { $_, 1 } qw(add_entry count) },
 		entry   => { map { $_, 1 } qw() },
 		);
 		
@@ -215,8 +215,8 @@ sub init
 		delete $config{$key};
 		}
 	
-	$self->{header}  = bless {}, $self->header_class;
-	$self->{entries} = bless [], $self->entries_class;
+	$self->{header}  = $self->header_class->new();
+	$self->{entries} = $self->entries_class->new();
 	
 	foreach my $key ( keys %config )
 		{
@@ -231,22 +231,47 @@ sub init
 
 Read an existing 02.packages.details.txt.gz file.
 
+While parsing, it modifies the field names to map them to Perly
+identifiers. The field is lowercased, and then hyphens become
+underscores. For instance:
+
+	Written-By ---> written_by
+	
 =cut
 
 sub read
 	{
 	my( $class, $file ) = @_;
+
+	unless( defined $file )
+		{
+		carp "Missing argument!";
+		return;
+		}
+		
+	use PerlIO::gzip;
 	
-	open my($fh), "<", $file or do {
+	open my($fh), "<:gzip", $file or do {
 		carp "Could not open $file: $!";
 		return;
 		};
 	
 	my $self = $class->_parse( $fh );
 	
+	$self->{source_file} = $file;
+	
 	$self;	
 	}
 	
+=item source_file
+
+Returns the original file path for objects created through the
+C<read> method.
+
+=cut
+
+sub source_file { $_[0]->{source_file} }
+
 sub _parse
 	{
 	my( $class, $fh ) = @_;
@@ -255,16 +280,22 @@ sub _parse
 		
 	while( <$fh> ) # header processing
 		{
+		chomp;
 		my( $field, $value ) = split /\s*:\s*/, $_, 2;
+		
+		$field = lc $field;
+		$field =~ tr/-/_/;
+		
 		carp "Unknown field value [$field] at line $.! Skipping..."
-			unless 0; # XXX should there be field name restrictions?
+			unless 1; # XXX should there be field name restrictions?
 		$package_details->set_header( $field, $value );
 		last if /^\s*$/;
 		}
-		
+	
 	my @columns = $package_details->columns;
 	while( <$fh> ) # entry processing
 		{
+		chomp;
 		my @values = split; # this could be in any order based on columns field.
 		$package_details->add_entry( 
 			map { $columns[$_], $values[$_] } 0 .. $#columns
@@ -302,6 +333,8 @@ of columns in any order.
 
 sub CPAN::PackageDetails::Header::DESTROY { }
 
+sub CPAN::PackageDetails::Header::new { bless {}, $_[0] }
+	
 =over 4
 
 =item header_class
@@ -377,7 +410,23 @@ immutable, so you'd have to subclass this module to change them.
 
 sub CPAN::PackageDetails::Entries::DESTROY { }
 
+sub CPAN::PackageDetails::Entries::new { bless [], $_[0] }
+
+sub CPAN::PackageDetails::Entries::count { scalar @{$_[0]} }
+
 =over
+
+=item new
+
+
+=cut
+
+sub CPAN::PackageDetails::Entry::new
+	{
+	my( $class, %args ) = @_;
+	
+	bless { %args }, $class
+	}
 
 =item entries_class
 
@@ -424,10 +473,9 @@ sub add_entry
 	{
 	my( $self, %args ) = @_;
 
-	bless %args, $self->entry_class;
+	my $entry = $self->entry_class->new( %args );
 
-	#$self->entries->add = $value;
-
+	push @{ $self->entries }, $entry;
 	}
 	
 =back
