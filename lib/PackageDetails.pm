@@ -560,7 +560,6 @@ sub CPAN::PackageDetails::Entry::as_string
 	{
 	my( $self, @columns ) = @_;
 	
-	print STDERR "Columns are @columns\n";
 	return join( "\t", map { $self->{$_} } @columns ) . "\n";
 	}	
 	
