@@ -1,4 +1,3 @@
-# $Id$
 package CPAN::PackageDetails;
 use strict;
 
@@ -7,6 +6,8 @@ no warnings;
 
 use subs qw();
 use vars qw($VERSION);
+
+use Carp;
 
 $VERSION = '0.10_01';
 
@@ -91,41 +92,52 @@ sub new
 	
 =item init
 
+=item default_headers
+
+Returns the keys for the 
 =cut
 
 BEGIN {
 my %defaults = (
-	file         => "02.packages.details.txt",
-	url          => "http://example.com/MyCPAN/modules/02.packages.details.txt",
-	description  => "Package names for my private CPAN",
-	columns      => "package name, version, path",
-	intended_for => "My private CPAN",
-	written_by   => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
-	last_updated => $epoch_time,
+	file          => "02.packages.details.txt.gz",
+	url           => "http://example.com/MyCPAN/modules/02.packages.details.txt",
+	description   => "Package names for my private CPAN",
+	columns       => "package name, version, path",
+	intended_for  => "My private CPAN",
+	written_by    => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
+	last_updated  => scalar localtime,
+	header_class  => 'CPAN::PackageDetails::Header',
+	entries_class => 'CPAN::PackageDetails::Entries',
+	entry_class   => 'CPAN::PackageDetails::Entry',
 	);
 	
-sub default_header_fields { keys %defaults }
+sub default_headers
+	{ 
+	map { my $s = $_; $s =~ tr/_/-/; $s, $defaults{$_} } 
+		grep ! /^_class/, keys %defaults 
+	}
 
 sub init
 	{
 	my( $self, %args ) = @_;
 
+	my %config = ( %defaults, %args );
+
 	# we'll delegate everything, but also try to hide the mess from the user
-	$self->{header_class}  = $args->{header_class}  || 'CPAN::PackageDetails::Header';
-	$self->{entries_class} = $args->{entries_class} || 'CPAN::PackageDetails::Entries';
-	$self->{entry_class}   = $args->{entry_class}   || 'CPAN::PackageDetails::Entry';
+	foreach my $key ( map { "${_}_class" } qw(header entries entry) )
+		{
+		$self->{$key}  = $config{$key};
+		delete $config{$key};
+		}
 	
 	$self->{header}  = bless {}, $self->header_class;
-	$self=>{entries} = bless [], $self->entries_class;
-	
-	my %config = ( %defaults, %args );
+	$self->{entries} = bless [], $self->entries_class;
 	
 	foreach my $key ( keys %config )
 		{
 		$self->header->add_header_field( $key, $config{$key} );
 		}
 		
-	
 	}
 	
 }
@@ -141,9 +153,9 @@ sub read
 	my( $class, $file ) = @_;
 	
 	open my($fh), "<", $file or do {
-		carp "Could not open $file: $!"
+		carp "Could not open $file: $!";
 		return;
-		}
+		};
 	
 	my $self = $class->_parse( $fh );
 	
@@ -160,7 +172,7 @@ sub _parse
 		{
 		my( $field, $value ) = split /\s*:\s*/, $_, 2;
 		carp "Unknown field value [$field] at line $.! Skipping..."
-			unless ...;
+			unless 0; # XXX should there be field name restrictions?
 		$package_details->add_header( $field, $value );
 		last if /^\s*$/;
 		}
@@ -170,14 +182,51 @@ sub _parse
 		{
 		my @values = split; # this could be in any order based on columns field.
 		$package_details->add_entry( 
-			map { $column[$_], $values[$_] } 0 .. $#columns
+			map { $columns[$_], $values[$_] } 0 .. $#columns
 			)
 		}
 	
 	$package_details;	
 	}
+
+=back
+
+=head2 Headers
+
+The 02.packages.details.txt.gz header is a short preamble that give information
+about the creation of the file, its intended use, and the number of entries in
+the file. It looks something like:
+
+	File:         02packages.details.txt
+	URL:          http://www.perl.com/CPAN/modules/02packages.details.txt
+	Description:  Package names found in directory $CPAN/authors/id/
+	Columns:      package name, version, path
+	Intended-For: Automated fetch routines, namespace documentation.
+	Written-By:   Id: mldistwatch.pm 1063 2008-09-23 05:23:57Z k 
+	Line-Count:   59754
+	Last-Updated: Thu, 23 Oct 2008 02:27:36 GMT
+
+Note that there is a Columns field. This module tries to respect the ordering
+of columns in there. The usual CPAN tools expect only three columns and in the
+order in this example, but C<CPAN::PackageDetails> tries to handle any number
+of columns in any order.
+
+=over 4
+
+=item header
+
+Returns the header object.
+
+=cut
 	
 sub header { $_[0]->{header} }
+
+=item add_header
+
+Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
+object and it will take care of finding the right handler.
+
+=cut
 
 sub add_header
 	{
@@ -192,6 +241,8 @@ sub CPAN::PackageDetails::Header::add_header
 
 	$self->{$field} = $value;
 	}
+
+=back
 	
 =head2 Entries
 
@@ -235,7 +286,20 @@ this is implementation rather than interface.
 
 sub entry_class { $_[0]->{entry_class} }
 
+=item entries
+
+Returns the entries object.
+
+=cut
+
 sub entries { $_[0]->{entries} }
+
+=item add_entry
+
+Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
+object and it will take care of finding the right handler.
+
+=cut
 
 sub add_entry
 	{
@@ -243,7 +307,7 @@ sub add_entry
 
 	bless %args, $self->entry_class;
 
-	$self->entries->add = $value;
+	#$self->entries->add = $value;
 
 	}
 	

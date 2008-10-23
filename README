@@ -17,10 +17,9 @@ perldoc directly on the module file.
 
 	perldoc  lib/PackageDetails.pm
 	
-This module is also in CVS on SourceForge
+This module is also Github:
 
-	http://sourceforge.net/projects/brian-d-foy/
-
+	http://github.com/briandfoy/cpan-packagedetails
 
 Enjoy, 
 
