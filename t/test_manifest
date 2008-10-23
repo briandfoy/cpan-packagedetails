@@ -4,3 +4,4 @@ pod_coverage.t
 autoload.t
 new.t
 read.t
+write_file.t
