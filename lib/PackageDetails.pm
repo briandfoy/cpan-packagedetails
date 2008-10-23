@@ -87,7 +87,9 @@ sub new
 
 	my $self = bless {}, $class;
 	
-	$self->init( %args )
+	$self->init( %args );
+	
+	$self;
 	}
 	
 =item init
@@ -113,10 +115,93 @@ my %defaults = (
 	
 sub default_headers
 	{ 
-	map { my $s = $_; $s =~ tr/_/-/; $s, $defaults{$_} } 
+	map { $_, $defaults{$_} } 
 		grep ! /^_class/, keys %defaults 
 	}
 
+sub CPAN::PackageDetails::Header::can
+	{
+	my( $self, @methods ) = @_;
+	
+	my $class = ref $self || $self; # class or instance
+	
+	foreach my $method ( @methods )
+		{
+		next if 
+			defined &{"${class}::$method"} || 
+			$self->header_exists( $method );
+		return 0;
+		}
+		
+	return 1;
+	}
+	
+sub CPAN::PackageDetails::Header::AUTOLOAD
+	{
+	my $self = shift;
+	
+	( my $method = $CPAN::PackageDetails::Header::AUTOLOAD ) =~ s/.*:://;
+	
+	carp "No such method as $method!" unless $self->can( $method );
+	
+	$self->get_header( $method );
+	}
+
+# These methods live in the top level and delegate interfaces
+# so I need to intercept them at the top-level and redirect
+# them to the right delegate
+my %Dispatch = (
+		header  => { map { $_, 1 } qw(set_header header_exists) },
+		entries => { map { $_, 1 } qw() },
+		entry   => { map { $_, 1 } qw() },
+		);
+		
+my %Dispatchable = map { #inverts %Dispatch
+	my $class = $_; 
+	map { $_, $class } keys %{$Dispatch{$class}} 
+	} keys %Dispatch;
+
+sub CPAN::PackageDetails::can
+	{
+	my( $self, @methods ) = @_;
+
+	my $class = ref $self || $self; # class or instance
+
+	foreach my $method ( @methods )
+		{
+		next if 
+			defined &{"${class}::$method"} || 
+			exists $Dispatchable{$method}  ||
+			$self->header_exists( $method );
+		return 0;
+		}
+
+	return 1;
+	}
+
+sub CPAN::PackageDetails::AUTOLOAD
+	{
+	my $self = shift;
+	
+	our $AUTOLOAD;
+	( my $method = $AUTOLOAD ) =~ s/.*:://;
+
+	if( exists $Dispatchable{$method} )
+		{
+		my $delegate = $Dispatchable{$method};		
+		return $self->$delegate()->$method(@_)
+		}
+	elsif( $self->header_exists( $method ) )
+		{
+		return $self->header->get_header( $method );
+		}
+	else
+		{
+		carp "No such method as $method!";
+		return;
+		}
+	}
+	
 sub init
 	{
 	my( $self, %args ) = @_;
@@ -135,7 +220,7 @@ sub init
 	
 	foreach my $key ( keys %config )
 		{
-		$self->header->add_header_field( $key, $config{$key} );
+		$self->header->set_header( $key, $config{$key} );
 		}
 		
 	}
@@ -173,7 +258,7 @@ sub _parse
 		my( $field, $value ) = split /\s*:\s*/, $_, 2;
 		carp "Unknown field value [$field] at line $.! Skipping..."
 			unless 0; # XXX should there be field name restrictions?
-		$package_details->add_header( $field, $value );
+		$package_details->set_header( $field, $value );
 		last if /^\s*$/;
 		}
 		
@@ -188,6 +273,8 @@ sub _parse
 	
 	$package_details;	
 	}
+
+sub DESTROY {}
 
 =back
 
@@ -211,7 +298,17 @@ of columns in there. The usual CPAN tools expect only three columns and in the
 order in this example, but C<CPAN::PackageDetails> tries to handle any number
 of columns in any order.
 
+=cut
+
+sub CPAN::PackageDetails::Header::DESTROY { }
+
 =over 4
+
+=item header_class
+
+=cut
+
+sub header_class { $_[0]->{header_class} }
 
 =item header
 
@@ -221,25 +318,43 @@ Returns the header object.
 	
 sub header { $_[0]->{header} }
 
-=item add_header
+=item set_header
 
 Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
 object and it will take care of finding the right handler.
 
 =cut
 
-sub add_header
-	{
-	my( $self, $field, $value ) = @_;
-		
-	$self->header->add_header( $field, $value );
-	}
-
-sub CPAN::PackageDetails::Header::add_header
+sub CPAN::PackageDetails::Header::set_header
 	{
 	my( $self, $field, $value ) = @_;
 
 	$self->{$field} = $value;
+	}
+
+=item header_exists
+
+=cut
+
+sub CPAN::PackageDetails::Header::header_exists 
+	{
+	my( $self, $field ) = @_;
+	exists $self->{$field}
+	}
+	
+=item header_exists( FIELD )
+
+Returns true if the header has a field named FIELD, regardless of
+its value.
+
+=cut
+
+sub CPAN::PackageDetails::Header::get_header 
+	{
+	my( $self, $field ) = @_;
+	
+	if( $self->header_exists( $field ) ) { $self->{$field} }
+	else { carp "No such header as $field!"; return }
 	}
 
 =back
@@ -257,6 +372,10 @@ Inside a CPAN::PackageDetails object, the actual work and
 manipulation of the entries are handled by delegate classes specified
 in C<entries_class> and C<entry_class>). At the moment these are
 immutable, so you'd have to subclass this module to change them.
+
+=cut
+
+sub CPAN::PackageDetails::Entries::DESTROY { }
 
 =over
 
