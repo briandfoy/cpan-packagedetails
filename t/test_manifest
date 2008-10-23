@@ -3,3 +3,4 @@ pod.t
 pod_coverage.t
 autoload.t
 new.t
+read.t
