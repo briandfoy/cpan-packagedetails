@@ -38,7 +38,7 @@ CPAN::PackageDetails - Create or read 02.packages.details.txt.gz
 		logic   => 'OR',  # but that could be AND, which is the default
 		package => qr/^Test::/, # or a string
 		author  => 'OVID',      # case insenstive
-		path    => 
+		path    =>  qr/foo/,
 		)
 	
 	# create a new file #####################
@@ -49,7 +49,7 @@ CPAN::PackageDetails - Create or read 02.packages.details.txt.gz
 		columns      => "package name, version, path",
 		intended_for => "My private CPAN",
 		written_by   => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
-		last-updated => $epoch_time,
+		last_updated => $epoch_time,
 		);
 
 	$package_details->add_entry(
@@ -151,7 +151,7 @@ sub CPAN::PackageDetails::Header::AUTOLOAD
 # so I need to intercept them at the top-level and redirect
 # them to the right delegate
 my %Dispatch = (
-		header  => { map { $_, 1 } qw(set_header header_exists) },
+		header  => { map { $_, 1 } qw(set_header header_exists columns_as_list) },
 		entries => { map { $_, 1 } qw(add_entry count) },
 		entry   => { map { $_, 1 } qw() },
 		);
@@ -292,7 +292,7 @@ sub _parse
 		last if /^\s*$/;
 		}
 	
-	my @columns = $package_details->columns;
+	my @columns = $package_details->columns_as_list;
 	while( <$fh> ) # entry processing
 		{
 		chomp;
@@ -305,6 +305,44 @@ sub _parse
 	$package_details;	
 	}
 
+=item write_file( OUTPUT_FILE )
+
+=cut
+
+sub write_file
+	{
+	my( $self, $output_file ) = @_;
+
+	my( $class, $output_file ) = @_;
+
+	unless( defined $output_file )
+		{
+		carp "Missing argument!";
+		return;
+		}
+
+	use PerlIO::gzip;
+		
+	open my($fh), ">:gzip", $output_file
+		or croak "Could not open $output_file for writing: $!";
+	
+	$self->write_fh( $fh );
+	}
+
+=item write_fh( FILEHANDLE )
+
+=cut
+
+sub write_fh
+	{
+	my( $self, $fh ) = @_;
+	
+	print $fh $self->header->as_string( $self->entries->count );
+	print $fh $self->entries->as_string( $self->header->columns_as_list );
+	
+	return 1;
+	}
+	
 sub DESTROY {}
 
 =back
@@ -390,6 +428,44 @@ sub CPAN::PackageDetails::Header::get_header
 	else { carp "No such header as $field!"; return }
 	}
 
+=item columns_as_list
+
+=cut
+
+sub CPAN::PackageDetails::Header::columns_as_list
+	{
+	my( $self ) = @_;
+	
+	split /,\s+/, $self->{columns};	
+	}
+
+=item as_string
+
+=cut
+
+sub CPAN::PackageDetails::Header::as_string
+	{
+	my( $self, $line_count ) = @_;
+	
+	# XXX: need entry count
+	my @lines;
+	foreach my $field ( keys %$self )
+		{
+		my $value = $self->get_header( $field );
+		(my $out_field = $field ) =~ s/_/-/g;
+		$out_field =~ s/^(.)/ uc $1 /eg;
+		$out_field =~ s/-(.)/ "-" . uc $1 /eg;
+		
+		$out_field = 'URL' if $field =~ /URL/i;
+		
+		push @lines, "$out_field: $value";
+		}
+		
+	push @lines, "Line-Count: $line_count";
+	
+	join "\n", sort( @lines ), "\n";
+	}
+	
 =back
 	
 =head2 Entries
@@ -462,6 +538,32 @@ Returns the entries object.
 
 sub entries { $_[0]->{entries} }
 
+=item as_string
+
+=cut
+
+sub CPAN::PackageDetails::Entries::as_string
+	{
+	my( $self, @columns ) = @_;
+	
+	my $entries;
+	
+	foreach my $entry ( @{ $self } )
+		{
+		$entries .= $entry->as_string( @columns );
+		}
+	
+	$entries;
+	}
+	
+sub CPAN::PackageDetails::Entry::as_string
+	{
+	my( $self, @columns ) = @_;
+	
+	print STDERR "Columns are @columns\n";
+	return join( "\t", map { $self->{$_} } @columns ) . "\n";
+	}	
+	
 =item add_entry
 
 Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
@@ -488,8 +590,10 @@ sub add_entry
 
 =head1 SOURCE AVAILABILITY
 
-This source is in Github
+This source is in Github:
 
+	http://github.com/briandfoy/cpan-packagedetails
+	
 =head1 AUTHOR
 
 brian d foy, C<< <bdfoy@cpan.org> >>
