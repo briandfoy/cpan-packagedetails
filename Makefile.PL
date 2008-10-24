@@ -7,7 +7,7 @@ eval "use Test::Manifest 1.21";
 
 WriteMakefile(
 	'NAME'	       => 'CPAN::PackageDetails',
-	'ABSTRACT'     => 'Create or read 02.packages.details.txt.gz',
+	'ABSTRACT'     => 'Create or read 02packages.details.txt.gz',
 	'VERSION_FROM' => 'lib/PackageDetails.pm',
 	'LICENSE'      => 'perl',
 	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
@@ -22,10 +22,6 @@ WriteMakefile(
 		'lib/PackageDetails.pm' => '$(INST_LIBDIR)/PackageDetails.pm',
 		},
 
-	'MAN3PODS'     => {
-		'lib/PackageDetails.pm' => '$(INST_MAN3DIR)/CPAN::PackageDetails.3',
-		},
-
-	clean  => { FILES    => q|CPAN-PackageDetails-*| },
+	clean  => { FILES    => q|CPAN-PackageDetails-* t/test_output| },
 
 	);

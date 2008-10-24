@@ -5,4 +5,5 @@ autoload.t
 new.t
 read.t
 get_header.t
+as_string.t
 write_file.t

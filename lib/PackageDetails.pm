@@ -260,7 +260,8 @@ sub init
 		}
 	
 	$self->{entries} = $self->entries_class->new(
-		entry_class => $self->entry_class
+		entry_class => $self->entry_class,
+		columns     => [ split /,\s+/, $config{columns} ],
 		);
 
 	$self->{header}  = $self->header_class->new(
@@ -709,6 +710,12 @@ Returns the class that Entries uses to make a new Entry object.
 
 sub entry_class { $_[0]->{entry_class} }
 
+=item columns
+
+=cut
+
+sub columns { @{ $_[0]->{columns} } };
+
 =item count
 
 Returns the number of entries.
@@ -748,13 +755,13 @@ on each Entry object, and concatenates the results for all Entry objects.
 
 sub as_string
 	{
-	my( $self, @columns ) = @_;
+	my( $self ) = @_;
 	
 	my $entries;
 	
 	foreach my $entry ( @{ $self->entries } )
 		{
-		$entries .= $entry->as_string( @columns );
+		$entries .= $entry->as_string( $self->columns );
 		}
 	
 	$entries;
