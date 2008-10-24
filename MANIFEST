@@ -15,3 +15,5 @@ t/test_files/02packages.details.txt
 t/test_manifest
 t/test_output/three_entries
 t/write_file.t
+t/regression_output/no_entries.gz
+t/regression_output/three_entries.gz
