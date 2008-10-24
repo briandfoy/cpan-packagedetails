@@ -195,9 +195,9 @@ sub CPAN::PackageDetails::Header::AUTOLOAD
 # so I need to intercept them at the top-level and redirect
 # them to the right delegate
 my %Dispatch = (
-		header  => { map { $_, 1 } qw(set_header header_exists columns_as_list) },
+		header  => { map { $_, 1 } qw(get_header set_header header_exists columns_as_list) },
 		entries => { map { $_, 1 } qw(add_entry count) },
-		entry   => { map { $_, 1 } qw() },
+	#	entry   => { map { $_, 1 } qw() },
 		);
 		
 my %Dispatchable = map { #inverts %Dispatch
@@ -359,6 +359,9 @@ sub _parse
 Formats the object as a string and writes it to the file named
 in OUTPUT_FILE. It gzips the output.
 
+C<write_file> carps and returns nothing if you pass it no arguments 
+or it cannot open OUTPUT_FILE for writing.
+
 =cut
 
 sub write_file
@@ -374,7 +377,10 @@ sub write_file
 	use PerlIO::gzip;
 		
 	open my($fh), ">:gzip", $output_file
-		or croak "Could not open $output_file for writing: $!";
+		or do {
+			carp "Could not open $output_file for writing: $!";
+			return;
+		};
 	
 	$self->write_fh( $fh );
 	}
@@ -453,7 +459,9 @@ sub DESTROY { }
 
 =item new( HASH ) 
 
-Create a new Header object.
+Create a new Header object. Unless you want a lot of work so you
+get more control, just let C<CPAN::PackageDetails>'s C<new> or C<read>
+handle this for you.
 
 In most cases, you'll want to create the Entries object first then
 pass a reference the the Entries object to C<new> since the header 
