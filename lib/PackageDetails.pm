@@ -9,7 +9,7 @@ use vars qw($VERSION);
 
 use Carp;
 
-$VERSION = '0.10_01';
+$VERSION = '0.11_01';
 
 =head1 NAME
 
@@ -23,14 +23,15 @@ CPAN::PackageDetails - Create or read 02.packages.details.txt.gz
 	my $package_details = CPAN::PackageDetails->read( $filename );
 	
 	my $creator    = $package_details->creator;  # See CPAN::PackageDetails::Header too
-	my $count      = $package_details->lines;
+	my $count      = $package_details->count;
 	
 	my $records    = $package_details->entries;
 	
 	foreach my $record ( @$records )
 		{
 		# See CPAN::PackageDetails::Entry too
-		print join "\t", map { $record->$_() } qw(package_name version path)
+		print join "\t", map { $record->$_() } ('package name', 'version', 'path')
+		print join "\t", map { $record->$_() } $package_details->columns_as_list;
 		}
 		
 	# not yet implemented, but would be really, really cool eh?
@@ -49,7 +50,7 @@ CPAN::PackageDetails - Create or read 02.packages.details.txt.gz
 		columns      => "package name, version, path",
 		intended_for => "My private CPAN",
 		written_by   => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
-		last_updated => $epoch_time,
+		last_updated => CPAN::PackageDetails->format_date,
 		);
 
 	$package_details->add_entry(
@@ -58,26 +59,47 @@ CPAN::PackageDetails - Create or read 02.packages.details.txt.gz
 		path         => $path,
 		);
 		
-	print "About to write ", $package_details->lines;
+	print "About to write ", $package_details->count, " entries\n";
 	my $big_string = $package_details->as_string;
 	
-	$package_details->write_file;
+	$package_details->write_file( $file );
+	
+	$package_details->write_fh( \*STDOUT )
 	
 =head1 DESCRIPTION
 
-CPAN uses an index file, 02.packages.details.txt.gz, to map package names to 
+CPAN uses an index file, 02.packages.details.txt.gz, to map package names to
 distribution files. Using this module, you can get a data structure of that
 file, or create your own.
 
-There are two parts to the 02.packages.details.txt.gz: a header and the index
+There are two parts to the 02.packages.details.txt.gz: a header and the index.
+This module uses a top-level C<CPAN::PackageDetails> object to control
+everything and comprise an C<CPAN::PackageDetails::Header> and
+C<CPAN::PackageDetails::Entries> object. The C<CPAN::PackageDetails::Entries>
+object is a collection of C<CPAN::PackageDetails::Entry> objects.
+
+For the most common uses, you don't need to worry about the insides
+of what class is doing what. You'll call most of the methods on
+the top-level  C<CPAN::PackageDetails> object and it will make sure
+that it gets to the right place.
+
+=head2 Methods in CPAN::PackageDetails.
+
+These methods are in the top-level object, and there are more methods
+for this class in the sections that cover the Header, Entries, and
+Entry objects.
 
 =over 4
 
-=cut
-
 =item new
 
-Create a new 02.packages.details.txt.gz file. 
+Create a new 02.packages.details.txt.gz file. The C<default_headers>
+method shows you which values you can pass to C<new>. For instance:
+
+	my $package_details = CPAN::PackageDetails->new(
+		url     => $url,
+		columns => 'author, package name, version, path',
+		)
 
 =cut
 
@@ -94,10 +116,32 @@ sub new
 	
 =item init
 
+Sets up the object. C<new> calls this automatically for you.
+
 =item default_headers
 
-Returns the keys for the 
+Returns the hash of header fields and their default values:
+
+	file            "02packages.details.txt"
+	url             "http://example.com/MyCPAN/modules/02.packages.details.txt"
+	description     "Package names for my private CPAN"
+	columns         "package name, version, path"
+	intended_for    "My private CPAN"
+	written_by      "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION"
+	last_updated    format_date()
+
+In the header, these fields show up with the underscores turned into hyphens,
+and the letters at the beginning or after a hyphen are uppercase.
+
+=item format_date
+
+Write the date in PAUSE format. For example:
+
+	Thu, 23 Oct 2008 02:27:36 GMT
+	
 =cut
+
+sub format_date { join ", ", split /\s+/, scalar gmtime, 2 }
 
 BEGIN {
 my %defaults = (
@@ -107,7 +151,7 @@ my %defaults = (
 	columns         => "package name, version, path",
 	intended_for    => "My private CPAN",
 	written_by      => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
-	last_updated    => scalar localtime,
+	last_updated    => __PACKAGE__->format_date,
 	header_class    => 'CPAN::PackageDetails::Header',
 	entries_class   => 'CPAN::PackageDetails::Entries',
 	entry_class     => 'CPAN::PackageDetails::Entry',
@@ -215,8 +259,13 @@ sub init
 		delete $config{$key};
 		}
 	
-	$self->{header}  = $self->header_class->new();
-	$self->{entries} = $self->entries_class->new();
+	$self->{entries} = $self->entries_class->new(
+		entry_class => $self->entry_class
+		);
+
+	$self->{header}  = $self->header_class->new(
+		_entries => $self->entries,
+		);
 	
 	foreach my $key ( keys %config )
 		{
@@ -307,13 +356,14 @@ sub _parse
 
 =item write_file( OUTPUT_FILE )
 
+Formats the object as a string and writes it to the file named
+in OUTPUT_FILE. It gzips the output.
+
 =cut
 
 sub write_file
 	{
 	my( $self, $output_file ) = @_;
-
-	my( $class, $output_file ) = @_;
 
 	unless( defined $output_file )
 		{
@@ -331,16 +381,15 @@ sub write_file
 
 =item write_fh( FILEHANDLE )
 
+Formats the object as a string and writes it to FILEHANDLE
+
 =cut
 
 sub write_fh
 	{
 	my( $self, $fh ) = @_;
 	
-	print $fh $self->header->as_string( $self->entries->count );
-	print $fh $self->entries->as_string( $self->header->columns_as_list );
-	
-	return 1;
+	print $fh $self->header->as_string, $self->entries->as_string;
 	}
 	
 sub DESTROY {}
@@ -367,15 +416,14 @@ of columns in there. The usual CPAN tools expect only three columns and in the
 order in this example, but C<CPAN::PackageDetails> tries to handle any number
 of columns in any order.
 
-=cut
+=head3 Methods in CPAN::PackageDetails
 
-sub CPAN::PackageDetails::Header::DESTROY { }
-
-sub CPAN::PackageDetails::Header::new { bless {}, $_[0] }
-	
 =over 4
 
 =item header_class
+
+Returns the class that C<CPAN::PackageDetails> uses to create
+the header object.
 
 =cut
 
@@ -389,6 +437,45 @@ Returns the header object.
 	
 sub header { $_[0]->{header} }
 
+=back
+
+=head3 Methods in CPAN::PackageDetails::Header
+
+=over 4
+
+=cut
+
+{
+package CPAN::PackageDetails::Header;
+use Carp;
+
+sub DESTROY { }
+
+=item new( HASH ) 
+
+Create a new Header object.
+
+In most cases, you'll want to create the Entries object first then
+pass a reference the the Entries object to C<new> since the header 
+object needs to know how to get the count of the number of entries
+so it can put it in the "Line-Count" header.
+
+	CPAN::PackageDetails::Header->new(
+		_entries => $entries_object,
+		)
+=cut
+
+sub new { 
+	my( $class, %args ) = @_;
+	
+	my %hash = ( 
+		_entries => undef,
+		%args
+		);
+			
+	bless \%hash, $_[0] 
+	}
+
 =item set_header
 
 Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
@@ -396,23 +483,13 @@ object and it will take care of finding the right handler.
 
 =cut
 
-sub CPAN::PackageDetails::Header::set_header
+sub set_header
 	{
 	my( $self, $field, $value ) = @_;
-
+	
 	$self->{$field} = $value;
 	}
 
-=item header_exists
-
-=cut
-
-sub CPAN::PackageDetails::Header::header_exists 
-	{
-	my( $self, $field ) = @_;
-	exists $self->{$field}
-	}
-	
 =item header_exists( FIELD )
 
 Returns true if the header has a field named FIELD, regardless of
@@ -420,7 +497,34 @@ its value.
 
 =cut
 
-sub CPAN::PackageDetails::Header::get_header 
+sub header_exists 
+	{
+	my( $self, $field ) = @_;
+
+	exists $self->{$field}
+	}
+	
+=item get_header( FIELD )
+
+Returns the value for the named header FIELD. Carps and returns nothing
+if the named header is not in the object. This method is available from
+the C<CPAN::PackageDetails> or C<CPAN::PackageDetails::Header> object:
+
+	$package_details->get_header( 'url' );
+	
+	$package_details->header->get_header( 'url' );
+	
+The header names in the Perl code are in a different format than they
+are in the file. See C<default_headers> for an explanation of the
+difference.
+
+For most headers, you can also use the header name as the method name:
+	
+	$package_details->header->url;
+
+=cut
+
+sub get_header 
 	{
 	my( $self, $field ) = @_;
 	
@@ -430,20 +534,55 @@ sub CPAN::PackageDetails::Header::get_header
 
 =item columns_as_list
 
+Returns the columns name as a list (rather than a comma-joined string). The
+list is in the order of the columns in the output.
+
 =cut
 
-sub CPAN::PackageDetails::Header::columns_as_list
-	{
-	my( $self ) = @_;
-	
-	split /,\s+/, $self->{columns};	
-	}
+sub columns_as_list { split /,\s+/, $_[0]->{columns} }
+
+sub _entries { $_[0]->{_entries} }
 
 =item as_string
 
+Return the header formatted as a string.
+
 =cut
 
-sub CPAN::PackageDetails::Header::as_string
+BEGIN {
+my %internal_field_name_mapping = (
+	url => 'URL',
+	);
+	
+my %external_field_name_mapping = reverse %internal_field_name_mapping;
+
+sub _internal_name_to_external_name
+	{
+	my( $self, $internal ) = @_;
+	
+	return $internal_field_name_mapping{$internal} 
+		if exists $internal_field_name_mapping{$internal};
+		
+	(my $external = $internal) =~ s/_/-/g;
+	$external =~ s/^(.)/ uc $1 /eg;
+	$external =~ s/-(.)/ "-" . uc $1 /eg;
+		
+	return $external;
+	}
+	
+sub _external_name_to_internal_name
+	{
+	my( $self, $external ) = @_;
+
+	return $external_field_name_mapping{$external} 
+		if exists $external_field_name_mapping{$external};
+	
+	(my $internal = $external) =~ s/-/_/g;
+
+	lc $internal;
+	}
+	
+sub as_string
 	{
 	my( $self, $line_count ) = @_;
 	
@@ -451,29 +590,173 @@ sub CPAN::PackageDetails::Header::as_string
 	my @lines;
 	foreach my $field ( keys %$self )
 		{
+		next if substr( $field, 0, 1 ) eq '_';
 		my $value = $self->get_header( $field );
-		(my $out_field = $field ) =~ s/_/-/g;
-		$out_field =~ s/^(.)/ uc $1 /eg;
-		$out_field =~ s/-(.)/ "-" . uc $1 /eg;
 		
-		$out_field = 'URL' if $field =~ /URL/i;
+		my $out_field = $self->_internal_name_to_external_name( $field );
 		
 		push @lines, "$out_field: $value";
 		}
 		
-	push @lines, "Line-Count: $line_count";
+	push @lines, "Line-Count: " . $self->_entries->count;
 	
 	join "\n", sort( @lines ), "\n";
 	}
-	
-=back
-
-sub _fmtdate {
-  my @date=split(/\s+/,scalar(gmtime())); 
-  return "$date[0], $date[2] $date[1] $date[4] $date[3] GMT";
 }
+
+}
+
+=back
 	
 =head2 Entries
+
+Entries are the collection of the items describing the package details.
+It comprises all of the Entry object. 
+
+=head3 Methods is CPAN::PackageDetails
+
+=over 4
+
+=item entries_class
+
+Returns the class to use for the Entries object.
+
+To use a different Entries class, tell C<new> which class you want to use
+by passing the C<entries_class> option:
+
+	CPAN::PackageDetails->new(
+		...,
+		entries_class => $class,
+		)
+
+Note that you are responsible for loading the right class yourself.
+
+=item count
+
+Returns the number of entries.
+
+This dispatches to the C<count> in CPAN::PackageDetails::Entries. These
+are the same:
+
+	$package_details->count;
+	
+	$package_details->entries->count;
+
+=cut
+
+sub entries_class { $_[0]->{entries_class} }
+
+=item entries
+
+Returns the entries object.
+
+=cut
+
+sub entries { $_[0]->{entries} }
+
+=back
+
+=head3 Methods is CPAN::PackageDetails::Entries
+
+=over 4
+
+=cut
+
+{
+package CPAN::PackageDetails::Entries;
+use Carp;
+
+sub DESTROY { }
+
+=item new
+
+Creates a new Entries object. This doesn't do anything fancy. To add
+to it, use C<add_entry>.
+
+	entry_class => the class to use for each entry object
+	columns     => the column names, in order that you want them in the output
+	
+=cut
+
+sub new { 
+	my( $class, %args ) = @_;
+	
+	my %hash = ( 
+		entry_class => 'CPAN::PackageDetails::Entry',
+		columns     => [],
+		entries    => [],
+		%args
+		);
+		
+	$hash{max_widths} = [ (0) x @{ $hash{columns} } ];
+	
+	bless \%hash, $_[0] 
+	}
+
+=item entry_class
+
+Returns the class that Entries uses to make a new Entry object.
+
+=cut
+
+sub entry_class { $_[0]->{entry_class} }
+
+=item count
+
+Returns the number of entries.
+
+=cut
+
+sub count { scalar @{$_[0]->{entries}} }
+
+=item entries
+
+Returns an array reference of Entry objects.
+
+=cut
+
+sub entries { $_[0]->{entries} }
+
+=item add_entry
+
+Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
+object and it will take care of finding the right handler.
+
+=cut
+
+sub add_entry
+	{
+	my( $self, %args ) = @_;
+
+	push @{ $self->{entries} }, $self->entry_class->new( %args );
+	}
+	
+=item as_string
+
+Returns a text version of the Entries object. This calls C<as_string>
+on each Entry object, and concatenates the results for all Entry objects.
+
+=cut
+
+sub as_string
+	{
+	my( $self, @columns ) = @_;
+	
+	my $entries;
+	
+	foreach my $entry ( @{ $self->entries } )
+		{
+		$entries .= $entry->as_string( @columns );
+		}
+	
+	$entries;
+	}
+
+}
+
+=back
+
+=head2 Entry
 
 An entry is a single line from 02.packages.details.txt that maps a
 package name to a source. It's a whitespace-separated list that
@@ -487,102 +770,68 @@ manipulation of the entries are handled by delegate classes specified
 in C<entries_class> and C<entry_class>). At the moment these are
 immutable, so you'd have to subclass this module to change them.
 
+=head3 Methods is CPAN::PackageDetails
+
+=over 4
+
+=item entry_class
+
+Returns the class to use for each Entry object.
+
+To use a different Entry class, tell C<new> which class you want to use
+by passing the C<entry_class> option:
+
+	CPAN::PackageDetails->new(
+		...,
+		entry_class => $class,
+		)
+
+Note that you are responsible for loading the right class yourself.
+
 =cut
 
-sub CPAN::PackageDetails::Entries::DESTROY { }
+sub entry_class { $_[0]->{entry_class} }
 
-sub CPAN::PackageDetails::Entries::new { bless [], $_[0] }
+=back
 
-sub CPAN::PackageDetails::Entries::count { scalar @{$_[0]} }
+=head3 Methods in CPAN::PackageDetails::Entry
 
-=over
-
-=item new
-
+=over 4
 
 =cut
 
-sub CPAN::PackageDetails::Entry::new
+{
+package CPAN::PackageDetails::Entry;	
+use Carp;
+
+=item new( FIELD1 => VALUE1 [, FIELD2 => VALUE2] )
+
+Create a new entry
+
+=cut
+
+sub new
 	{
 	my( $class, %args ) = @_;
 	
 	bless { %args }, $class
 	}
 
-=item entries_class
+=item as_string( @column_names )
 
-Returns the class to use for the entries collection, which is 
-C<CPAN::PackageDetails::Entries> by default. Anything that
-wants to work with the entries as a whole should do it through
-this class's interface. This is a hook for subclasses, and you
-don't need to fool with it for the common cases since most of
-this is implementation rather than interface.
+Formats the Entry as text. It joins with whitespace the values for the 
+column names you pass it. You get the newline automatically.
 
 =cut
 
-sub entries_class { $_[0]->{entries_class} }
-
-=item entry_class
-
-Returns the class to use for a single entry, which is 
-C<CPAN::PackageDetails::Entry> by default. Anything that
-wants to work with an entry as a whole should do it through
-this class's interface. This is a hook for subclasses, and you
-don't need to fool with it for the common cases since most of
-this is implementation rather than interface.
-
-=cut
-
-sub entry_class { $_[0]->{entry_class} }
-
-=item entries
-
-Returns the entries object.
-
-=cut
-
-sub entries { $_[0]->{entries} }
-
-=item as_string
-
-=cut
-
-sub CPAN::PackageDetails::Entries::as_string
-	{
-	my( $self, @columns ) = @_;
-	
-	my $entries;
-	
-	foreach my $entry ( @{ $self } )
-		{
-		$entries .= $entry->as_string( @columns );
-		}
-	
-	$entries;
-	}
-	
-sub CPAN::PackageDetails::Entry::as_string
+sub as_string
 	{
 	my( $self, @columns ) = @_;
 	
 	return join( "\t", map { $self->{$_} } @columns ) . "\n";
 	}	
-	
-=item add_entry
 
-Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
-object and it will take care of finding the right handler.
-
-=cut
-
-sub add_entry
-	{
-	my( $self, %args ) = @_;
-
-	my $entry = $self->entry_class->new( %args );
-
-	push @{ $self->entries }, $entry;
-	}
+}
 	
 =back
 
