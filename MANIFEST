@@ -11,9 +11,11 @@ t/new.t
 t/pod.t
 t/pod_coverage.t
 t/read.t
-t/test_files/02packages.details.txt
-t/test_manifest
-t/test_output/three_entries
-t/write_file.t
 t/regression_output/no_entries.gz
 t/regression_output/three_entries.gz
+t/test_files/02packages.details.txt
+t/test_files/02packages.details.txt.gz
+t/test_manifest
+t/test_regression/no_entries.gz
+t/test_regression/three_entries.gz
+t/write_file.t

@@ -5,7 +5,7 @@ Makefile$
 \.DS_Store
 \.bak
 \.tar$
-\.gz$
+^[^0]\.gz$
 \.tgz$
 \.zip$
 MANIFEST\.
@@ -17,6 +17,7 @@ pm_to_blib
 t/\d
 t/cover_db*
 ^cover_db\b
+test_output
 \.gitignore
 \.svnignore
 \.git
