@@ -467,6 +467,11 @@ sub CPAN::PackageDetails::Header::as_string
 	}
 	
 =back
+
+sub _fmtdate {
+  my @date=split(/\s+/,scalar(gmtime())); 
+  return "$date[0], $date[2] $date[1] $date[4] $date[3] GMT";
+}
 	
 =head2 Entries
 

@@ -20,3 +20,5 @@ t/cover_db*
 \.gitignore
 \.svnignore
 \.git
+CPAN-.*
+TODO
