@@ -102,3 +102,19 @@ stderr_like
 	"$method fails without a filename";
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Test that it fails if I don't give it a bad filename
+{
+my $bad_dir  = catfile( qw(tt foo bar baz));
+my $bad_file = catfile( $bad_dir, 'output.txt.gz');
+ok( ! -d $bad_dir, "Bad directory [$bad_dir] is not there" );
+
+my $package_details = $class->new;
+isa_ok( $package_details, $class );
+can_ok( $package_details, $method );
+
+stderr_like
+	{ $package_details->$method( $bad_file ) }
+	qr/Could not open/,
+	"$method fails without a bad filename";
+}
