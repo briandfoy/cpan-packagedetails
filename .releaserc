@@ -1,1 +1,2 @@
 cpan_user BDFOY
+perls /usr/local/bin/perl5.10.0:/usr/local/bin/perl
