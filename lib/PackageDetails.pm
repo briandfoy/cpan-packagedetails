@@ -9,7 +9,7 @@ use vars qw($VERSION);
 
 use Carp;
 
-$VERSION = '0.11_02';
+$VERSION = '0.11_03';
 
 =head1 NAME
 
@@ -299,10 +299,10 @@ sub read
 		return;
 		}
 		
-	use PerlIO::gzip;
-	
-	open my($fh), "<:gzip", $file or do {
-		carp "Could not open $file: $!";
+	require IO::Uncompress::Gunzip;
+
+	my $fh = IO::Uncompress::Gunzip->new( $file ) or do {	
+		carp "Could not open $file: $IO::Compress::Gunzip::GunzipError";
 		return;
 		};
 	
@@ -374,13 +374,12 @@ sub write_file
 		carp "Missing argument!";
 		return;
 		}
-
-	use PerlIO::gzip;
-		
-	open my($fh), ">:gzip", $output_file
-		or do {
-			carp "Could not open $output_file for writing: $!";
-			return;
+	
+	require IO::Compress::Gzip;
+	
+	my $fh = IO::Compress::Gzip->new( $output_file ) or do {
+		carp "Could not open $output_file for writing: $IO::Compress::Gzip::GzipError";
+		return;
 		};
 	
 	$self->write_fh( $fh );
@@ -693,7 +692,7 @@ sub new {
 	my %hash = ( 
 		entry_class => 'CPAN::PackageDetails::Entry',
 		columns     => [],
-		entries    => [],
+		entries     => [],
 		%args
 		);
 		
@@ -764,7 +763,7 @@ sub as_string
 		$entries .= $entry->as_string( $self->columns );
 		}
 	
-	$entries;
+	$entries || '';
 	}
 
 }

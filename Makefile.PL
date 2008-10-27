@@ -1,4 +1,3 @@
-# $Id: Makefile.PL,v 1.4 2004/07/04 17:04:17 comdog Exp $
 use ExtUtils::MakeMaker;
 
 require 5.008;
@@ -11,11 +10,11 @@ WriteMakefile(
 	'VERSION_FROM' => 'lib/PackageDetails.pm',
 	'LICENSE'      => 'perl',
 	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
-	
+
 	'PREREQ_PM'    => { 
-		'Test::More'   => '0',
-		'Test::Output' => '0.10',
-		'PerlIO::gzip' => '0',
+		'Test::More'         => '0',
+		'Test::Output'       => '0.10',
+		'IO::Compress::Gzip' => '0',
 		},
 
 	'PM'           => {
