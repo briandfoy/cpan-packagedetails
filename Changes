@@ -1,6 +1,10 @@
 0.10_01 - Fri Oct 24 07:21:20 2008
 	* Initial release: You can create or read 02packages.details.txt.gz.
 
+0.11_02 - Mon Oct 27 13:17:32 2008
+	* Add the new test files to the MANIFEST so they show up
+	in the dist :)
+
 0.11_01 - Fri Oct 24 10:08:23 2008
 	* Re-organized some of the methods and improved the docs,
 	added even more tests
