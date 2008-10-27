@@ -12,10 +12,10 @@ WriteMakefile(
 	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
 
 	'PREREQ_PM'    => { 
-		'Test::More'           => '0',
-		'Test::Output'         => '0.10',
-		'IO::Compress::Gzip'   => '0',
-		'IO::Compress::Gunzip' => '0',
+		'Test::More'             => '0',
+		'Test::Output'           => '0.10',
+		'IO::Compress::Gzip'     => '0',
+		'IO::Uncompress::Gunzip' => '0',
 		},
 
 	'PM'           => {
