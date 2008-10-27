@@ -40,7 +40,6 @@ is( $package_details->count, scalar @entries_to_add,
 		"Count is the same number as added entries");
 
 my @columns = ( 'package_name', qw(version path));
-
 foreach my $entry ( @{ $package_details->entries->{entries} } )
 	{
 	ok( length( $entry->as_string( @columns ) ) > 1, "Some sort of string comes back from entry")
