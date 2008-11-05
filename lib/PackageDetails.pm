@@ -836,13 +836,18 @@ sub new
 Formats the Entry as text. It joins with whitespace the values for the 
 column names you pass it. You get the newline automatically.
 
+Any values that are not defined turn into the literal string 'undef'
+to preserve the columns in the output.
+
 =cut
 
 sub as_string
 	{
 	my( $self, @columns ) = @_;
 	
-	return join( "\t", map { $self->{$_} } @columns ) . "\n";
+	return join( "\t", 
+		map { defined $self->{$_} ? $self->{$_} : 'undef' } @columns 
+		) . "\n";
 	}	
 
 }
