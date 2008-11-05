@@ -29,10 +29,10 @@ is( $package_details->file, '02packages.details.txt',
 is( $package_details->url, 'http://www.perl.com/CPAN/modules/02packages.details.txt', 
 	'url field reports right value from top level'  );
 
-is( $package_details->line_count, $lines, 
+is( $package_details->count, $lines, 
 	'line field reports right value from top level'  );
 
-is( $package_details->count, $lines,
+is( $package_details->line_count, $lines,
 	"Entries has the right number of elements from delegate level");
 
 # test with the delegate level

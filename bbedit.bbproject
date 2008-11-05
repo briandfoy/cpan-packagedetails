@@ -6,6 +6,8 @@
 	<dict>
 		<key>EmbeddedEditorHidden:brian</key>
 		<false/>
+		<key>ExpandedEditorWidth:brian:displays()</key>
+		<integer>636</integer>
 		<key>ExpandedEditorWidth:brian:displays([(0, 0), (1280, 854)])</key>
 		<integer>636</integer>
 		<key>ExpandedItems:brian</key>
@@ -84,28 +86,6 @@
 			<dict>
 				<key>AliasData</key>
 				<data>
-				AAAAAAFqAAIAAAdMZW9wYXJkAAAAAAAAAAAAAAAAAAAA
-				AAAAAADDUpoMSCsAAABlB5UGcmVhZC50AAAAAAAAAAAA
-				AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-				AAAAAAAAAAAAAAAAAAAAAGUHncU2Vy5URVhUAAAAAP//
-				//8AAAkgAAAAAAAAAAAAAAAAAAAAAXQAABAACAAAw1Lg
-				XAAAABEACAAAxTarjgAAAAEAFABlB5UAZQdIAAoUHQAG
-				KpoAAHmHAAIANExlb3BhcmQ6VXNlcnM6YnJpYW46RGV2
-				OkNQQU4tUGFja2FnZURldGFpbHM6dDpyZWFkLnQADgAO
-				AAYAcgBlAGEAZAAuAHQADwAQAAcATABlAG8AcABhAHIA
-				ZAASACxVc2Vycy9icmlhbi9EZXYvQ1BBTi1QYWNrYWdl
-				RGV0YWlscy90L3JlYWQudAATAAEvAAAVAAIADP//AAA=
-				</data>
-				<key>FileURL</key>
-				<string>file://localhost/Users/brian/Dev/CPAN-PackageDetails/t/read.t</string>
-				<key>TypeID</key>
-				<string>_CFileLocator</string>
-				<key>Version</key>
-				<integer>1</integer>
-			</dict>
-			<dict>
-				<key>AliasData</key>
-				<data>
 				AAAAAAHYAAIAAAdMZW9wYXJkAAAAAAAAAAAAAAAAAAAA
 				AAAAAADDUpoMSCsAAABlB6EZMDJwYWNrYWdlcy5kZXRh
 				aWxzLnR4dC5negAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -124,6 +104,28 @@
 				</data>
 				<key>FileURL</key>
 				<string>file://localhost/Users/brian/Dev/CPAN-PackageDetails/t/test_files/02packages.details.txt.gz</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<dict>
+				<key>AliasData</key>
+				<data>
+				AAAAAAFqAAIAAAdMZW9wYXJkAAAAAAAAAAAAAAAAAAAA
+				AAAAAADDUpoMSCsAAABlB5UGcmVhZC50AAAAAAAAAAAA
+				AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+				AAAAAAAAAAAAAAAAAAAAAGUHncU2Vy5URVhUAAAAAP//
+				//8AAAkgAAAAAAAAAAAAAAAAAAAAAXQAABAACAAAw1Lg
+				XAAAABEACAAAxTarjgAAAAEAFABlB5UAZQdIAAoUHQAG
+				KpoAAHmHAAIANExlb3BhcmQ6VXNlcnM6YnJpYW46RGV2
+				OkNQQU4tUGFja2FnZURldGFpbHM6dDpyZWFkLnQADgAO
+				AAYAcgBlAGEAZAAuAHQADwAQAAcATABlAG8AcABhAHIA
+				ZAASACxVc2Vycy9icmlhbi9EZXYvQ1BBTi1QYWNrYWdl
+				RGV0YWlscy90L3JlYWQudAATAAEvAAAVAAIADP//AAA=
+				</data>
+				<key>FileURL</key>
+				<string>file://localhost/Users/brian/Dev/CPAN-PackageDetails/t/read.t</string>
 				<key>TypeID</key>
 				<string>_CFileLocator</string>
 				<key>Version</key>
@@ -156,6 +158,8 @@
 		</array>
 		<key>ViewSplitterPosition:brian</key>
 		<real>0.21384425461292267</real>
+		<key>WindowFrame:brian:displays()</key>
+		<string>rect(44,151,842,960)</string>
 		<key>WindowFrame:brian:displays([(0, 0), (1280, 854)])</key>
 		<string>rect(44,151,842,960)</string>
 	</dict>
