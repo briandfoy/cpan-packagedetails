@@ -15,7 +15,7 @@ ok( -e $file, "Test file $file exists" );
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # Test with single, good argument to read
 {
-my $lines = 2940;
+my $lines = 1439;
 
 my $package_details = $class->$method( $file );
 isa_ok( $package_details, $class );
