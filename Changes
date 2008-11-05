@@ -1,6 +1,10 @@
 0.10_01 - Fri Oct 24 07:21:20 2008
 	* Initial release: You can create or read 02packages.details.txt.gz.
 
+0.13 - Wed Nov  5 02:13:53 2008
+	* Put in the literal "undef" as a placeholder for columns
+	with null data (such as modules without versions)
+
 0.12 - Fri Oct 31 07:55:02 2008
 	* Bump to release version
 
