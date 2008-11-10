@@ -10,22 +10,44 @@
 		<integer>636</integer>
 		<key>ExpandedEditorWidth:brian:displays([(0, 0), (1280, 854)])</key>
 		<integer>636</integer>
-		<key>ExpandedEditorWidth:brian:displays([(0, 0), (1920, 1200)]:[(-1680, 0), (1680, 1050)])</key>
-		<integer>692</integer>
 		<key>ExpandedItems:brian</key>
-		<array/>
+		<array>
+			<string>F8C06E86-B5D0-409C-A9CA-FCBAE945E587</string>
+			<dict>
+				<key>AliasData</key>
+				<data>
+				AAAAAAFqAAIAAQdMZW9wYXJkAAAAAAAAAAAAAAAAAAAA
+				AAAAAADDUpoMSCsAAABp4mkDbGliAAAAAAAAAAAAAAAA
+				AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+				AAAAAAAAAAAAAAAAAAAAAGnit8U9jIUAAAAAAAAAAP//
+				//8AAAkgAAAAAAAAAAAAAAAAAAAAE0NQQU4tUGFja2Fn
+				ZURldGFpbHMAABAACAAAw1LgXAAAABEACAAAxT3g5QAA
+				AAEAEABp4mkAChQdAAYqmgAAeYcAAgAvTGVvcGFyZDpV
+				c2VyczpicmlhbjpEZXY6Q1BBTi1QYWNrYWdlRGV0YWls
+				czpsaWIAAA4ACAADAGwAaQBiAA8AEAAHAEwAZQBvAHAA
+				YQByAGQAEgAnVXNlcnMvYnJpYW4vRGV2L0NQQU4tUGFj
+				a2FnZURldGFpbHMvbGliAAATAAEvAAAVAAIADP//AAA=
+				</data>
+				<key>FileURL</key>
+				<string>file://localhost/Users/brian/Dev/CPAN-PackageDetails/lib/</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+		</array>
 		<key>OpenDocuments:brian</key>
 		<array>
 			<dict>
 				<key>AliasData</key>
 				<data>
 				AAAAAAGeAAIAAAdMZW9wYXJkAAAAAAAAAAAAAAAAAAAA
-				AAAAAADBcTjpSCsAAAKhOcgRUGFja2FnZURldGFpbHMu
+				AAAAAADDUpoMSCsAAABp4rcRUGFja2FnZURldGFpbHMu
 				cG0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-				AAAAAAAAAAAAAAAAAAAAArwmK8U2pQ1URVhUAAAAAP//
-				//8AAAkgAAAAAAAAAAAAAAAAAAAAA2xpYgAAEAAIAADB
-				cY1JAAAAEQAIAADFNvltAAAAAQAUAqE5yAKhOcEACXQw
-				AAfYbgAAbxkAAgBBTGVvcGFyZDpVc2VyczpicmlhbjpE
+				AAAAAAAAAAAAAAAAAAAAAGniuMU9jIVURVhUAAAAAP//
+				//8AAAkgAAAAAAAAAAAAAAAAAAAAA2xpYgAAEAAIAADD
+				UuBcAAAAEQAIAADFPeDlAAAAAQAUAGnitwBp4mkAChQd
+				AAYqmgAAeYcAAgBBTGVvcGFyZDpVc2VyczpicmlhbjpE
 				ZXY6Q1BBTi1QYWNrYWdlRGV0YWlsczpsaWI6UGFja2Fn
 				ZURldGFpbHMucG0AAA4AJAARAFAAYQBjAGsAYQBnAGUA
 				RABlAHQAYQBpAGwAcwAuAHAAbQAPABAABwBMAGUAbwBw
@@ -40,43 +62,13 @@
 				<key>Version</key>
 				<integer>1</integer>
 			</dict>
-			<dict>
-				<key>AliasData</key>
-				<data>
-				AAAAAAHYAAIAAAdMZW9wYXJkAAAAAAAAAAAAAAAAAAAA
-				AAAAAADBcTjpSCsAAAKhQN4ZMDJwYWNrYWdlcy5kZXRh
-				aWxzLnR4dC5negAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-				AAAAAAAAAAAAAAAAAAAAArwmNMU2pmdURVhUAAAAAP//
-				//8AAAkgAAAAAAAAAAAAAAAAAAAACnRlc3RfZmlsZXMA
-				EAAIAADBcY1JAAAAEQAIAADFNvrHAAAAAQAYAqFA3gKh
-				Oc4CoTnBAAl0MAAH2G4AAG8ZAAIAUkxlb3BhcmQ6VXNl
-				cnM6YnJpYW46RGV2OkNQQU4tUGFja2FnZURldGFpbHM6
-				dDp0ZXN0X2ZpbGVzOjAycGFja2FnZXMuZGV0YWlscy50
-				eHQuZ3oADgA0ABkAMAAyAHAAYQBjAGsAYQBnAGUAcwAu
-				AGQAZQB0AGEAaQBsAHMALgB0AHgAdAAuAGcAegAPABAA
-				BwBMAGUAbwBwAGEAcgBkABIASlVzZXJzL2JyaWFuL0Rl
-				di9DUEFOLVBhY2thZ2VEZXRhaWxzL3QvdGVzdF9maWxl
-				cy8wMnBhY2thZ2VzLmRldGFpbHMudHh0Lmd6ABMAAS8A
-				ABUAAgAM//8AAA==
-				</data>
-				<key>FileURL</key>
-				<string>file://localhost/Users/brian/Dev/CPAN-PackageDetails/t/test_files/02packages.details.txt.gz</string>
-				<key>TypeID</key>
-				<string>_CFileLocator</string>
-				<key>Version</key>
-				<integer>1</integer>
-			</dict>
 		</array>
-		<key>ToolbarVisible:brian</key>
-		<true/>
 		<key>ViewSplitterPosition:brian</key>
-		<real>0.19534884393215179</real>
+		<real>0.21384425461292267</real>
 		<key>WindowFrame:brian:displays()</key>
 		<string>rect(44,151,842,960)</string>
 		<key>WindowFrame:brian:displays([(0, 0), (1280, 854)])</key>
-		<string>rect(44,151,842,960)</string>
-		<key>WindowFrame:brian:displays([(0, 0), (1920, 1200)]:[(-1680, 0), (1680, 1050)])</key>
-		<string>rect(71,569,1227,1429)</string>
+		<string>rect(48,193,846,1002)</string>
 	</dict>
 	<key>HierarchyData</key>
 	<array>

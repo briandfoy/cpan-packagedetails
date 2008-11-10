@@ -9,11 +9,11 @@ use vars qw($VERSION);
 
 use Carp;
 
-$VERSION = '0.13';
+$VERSION = '0.15';
 
 =head1 NAME
 
-CPAN::PackageDetails - Create or read 02.packages.details.txt.gz
+CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 
 =head1 SYNOPSIS
 
@@ -44,8 +44,8 @@ CPAN::PackageDetails - Create or read 02.packages.details.txt.gz
 	
 	# create a new file #####################
 	my $package_details = CPAN::PackageDetails->new( 
-		file         => "02.packages.details.txt",
-		url          => "http://example.com/MyCPAN/modules/02.packages.details.txt",
+		file         => "02packages.details.txt",
+		url          => "http://example.com/MyCPAN/modules/02packages.details.txt",
 		description  => "Package names for my private CPAN",
 		columns      => "package name, version, path",
 		intended_for => "My private CPAN",
@@ -68,11 +68,11 @@ CPAN::PackageDetails - Create or read 02.packages.details.txt.gz
 	
 =head1 DESCRIPTION
 
-CPAN uses an index file, 02.packages.details.txt.gz, to map package names to
+CPAN uses an index file, 02packages.details.txt.gz, to map package names to
 distribution files. Using this module, you can get a data structure of that
 file, or create your own.
 
-There are two parts to the 02.packages.details.txt.gz: a header and the index.
+There are two parts to the 02packages.details.txt.gz: a header and the index.
 This module uses a top-level C<CPAN::PackageDetails> object to control
 everything and comprise an C<CPAN::PackageDetails::Header> and
 C<CPAN::PackageDetails::Entries> object. The C<CPAN::PackageDetails::Entries>
@@ -93,7 +93,7 @@ Entry objects.
 
 =item new
 
-Create a new 02.packages.details.txt.gz file. The C<default_headers>
+Create a new 02packages.details.txt.gz file. The C<default_headers>
 method shows you which values you can pass to C<new>. For instance:
 
 	my $package_details = CPAN::PackageDetails->new(
@@ -123,7 +123,7 @@ Sets up the object. C<new> calls this automatically for you.
 Returns the hash of header fields and their default values:
 
 	file            "02packages.details.txt"
-	url             "http://example.com/MyCPAN/modules/02.packages.details.txt"
+	url             "http://example.com/MyCPAN/modules/02packages.details.txt"
 	description     "Package names for my private CPAN"
 	columns         "package name, version, path"
 	intended_for    "My private CPAN"
@@ -146,7 +146,7 @@ sub format_date { join ", ", split /\s+/, scalar gmtime, 2 }
 BEGIN {
 my %defaults = (
 	file            => "02packages.details.txt",
-	url             => "http://example.com/MyCPAN/modules/02.packages.details.txt",
+	url             => "http://example.com/MyCPAN/modules/02packages.details.txt",
 	description     => "Package names for my private CPAN",
 	columns         => "package name, version, path",
 	intended_for    => "My private CPAN",
@@ -279,7 +279,7 @@ sub init
 
 =item read( FILE )
 
-Read an existing 02.packages.details.txt.gz file.
+Read an existing 02packages.details.txt.gz file.
 
 While parsing, it modifies the field names to map them to Perly
 identifiers. The field is lowercased, and then hyphens become
@@ -404,7 +404,7 @@ sub DESTROY {}
 
 =head2 Headers
 
-The 02.packages.details.txt.gz header is a short preamble that give information
+The 02packages.details.txt.gz header is a short preamble that give information
 about the creation of the file, its intended use, and the number of entries in
 the file. It looks something like:
 
@@ -757,8 +757,9 @@ sub as_string
 	my( $self ) = @_;
 	
 	my $entries;
+	my $k = 'package_name'; # $k
 	
-	foreach my $entry ( @{ $self->entries } )
+	foreach my $entry ( sort { $a->{$k} cmp $b->{$k} } @{ $self->entries } )
 		{
 		$entries .= $entry->as_string( $self->columns );
 		}
@@ -772,7 +773,7 @@ sub as_string
 
 =head2 Entry
 
-An entry is a single line from 02.packages.details.txt that maps a
+An entry is a single line from 02packages.details.txt that maps a
 package name to a source. It's a whitespace-separated list that
 has the values for the column identified in the "columns" field
 in the header.
