@@ -760,8 +760,10 @@ sub as_string
 	my $entries;
 	my( $k1, $k2 ) = ( $self->columns )[0,1];
 	
+	my %Seen;
 	foreach my $entry ( 
-		sort { $a->{$k1} cmp $b->{$k1} || $a->{$k2} <=> $b->{$k2} } 
+		grep { ! $Seen{ $_->{$k1} }++ }
+		sort { $a->{$k1} cmp $b->{$k1} || $b->{$k2} <=> $a->{$k2} } 
 		@{ $self->entries } 
 		)
 		{
