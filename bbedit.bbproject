@@ -10,6 +10,8 @@
 		<integer>636</integer>
 		<key>ExpandedEditorWidth:brian:displays([(0, 0), (1280, 854)])</key>
 		<integer>636</integer>
+		<key>ExpandedEditorWidth:brian:displays([(0, 0), (1680, 1050)])</key>
+		<integer>828</integer>
 		<key>ExpandedItems:brian</key>
 		<array>
 			<string>F8C06E86-B5D0-409C-A9CA-FCBAE945E587</string>
@@ -17,12 +19,12 @@
 				<key>AliasData</key>
 				<data>
 				AAAAAAFqAAIAAQdMZW9wYXJkAAAAAAAAAAAAAAAAAAAA
-				AAAAAADDUpoMSCsAAABp4mkDbGliAAAAAAAAAAAAAAAA
+				AAAAAADBcTjpSCsAAAKhOcEDbGliAAAAAAAAAAAAAAAA
 				AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-				AAAAAAAAAAAAAAAAAAAAAGnit8U9jIUAAAAAAAAAAP//
+				AAAAAAAAAAAAAAAAAAAAAqE5yMUl4fIAAAAAAAAAAP//
 				//8AAAkgAAAAAAAAAAAAAAAAAAAAE0NQQU4tUGFja2Fn
-				ZURldGFpbHMAABAACAAAw1LgXAAAABEACAAAxT3g5QAA
-				AAEAEABp4mkAChQdAAYqmgAAeYcAAgAvTGVvcGFyZDpV
+				ZURldGFpbHMAABAACAAAwXGNSQAAABEACAAAxSYoQgAA
+				AAEAEAKhOcEACXQwAAfYbgAAbxkAAgAvTGVvcGFyZDpV
 				c2VyczpicmlhbjpEZXY6Q1BBTi1QYWNrYWdlRGV0YWls
 				czpsaWIAAA4ACAADAGwAaQBiAA8AEAAHAEwAZQBvAHAA
 				YQByAGQAEgAnVXNlcnMvYnJpYW4vRGV2L0NQQU4tUGFj
@@ -42,12 +44,12 @@
 				<key>AliasData</key>
 				<data>
 				AAAAAAGeAAIAAAdMZW9wYXJkAAAAAAAAAAAAAAAAAAAA
-				AAAAAADDUpoMSCsAAABp4rcRUGFja2FnZURldGFpbHMu
+				AAAAAADBcTjpSCsAAAKhOcgRUGFja2FnZURldGFpbHMu
 				cG0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-				AAAAAAAAAAAAAAAAAAAAAGniuMU9jIVURVhUAAAAAP//
-				//8AAAkgAAAAAAAAAAAAAAAAAAAAA2xpYgAAEAAIAADD
-				UuBcAAAAEQAIAADFPeDlAAAAAQAUAGnitwBp4mkAChQd
-				AAYqmgAAeYcAAgBBTGVvcGFyZDpVc2VyczpicmlhbjpE
+				AAAAAAAAAAAAAAAAAAAAAr1J/sU9mfRURVhUAAAAAP//
+				//8AAAkgAAAAAAAAAAAAAAAAAAAAA2xpYgAAEAAIAADB
+				cY1JAAAAEQAIAADFPe5UAAAAAQAUAqE5yAKhOcEACXQw
+				AAfYbgAAbxkAAgBBTGVvcGFyZDpVc2VyczpicmlhbjpE
 				ZXY6Q1BBTi1QYWNrYWdlRGV0YWlsczpsaWI6UGFja2Fn
 				ZURldGFpbHMucG0AAA4AJAARAFAAYQBjAGsAYQBnAGUA
 				RABlAHQAYQBpAGwAcwAuAHAAbQAPABAABwBMAGUAbwBw
@@ -63,12 +65,16 @@
 				<integer>1</integer>
 			</dict>
 		</array>
+		<key>ToolbarVisible:brian</key>
+		<true/>
 		<key>ViewSplitterPosition:brian</key>
-		<real>0.21384425461292267</real>
+		<real>0.16867469251155853</real>
 		<key>WindowFrame:brian:displays()</key>
 		<string>rect(44,151,842,960)</string>
 		<key>WindowFrame:brian:displays([(0, 0), (1280, 854)])</key>
 		<string>rect(48,193,846,1002)</string>
+		<key>WindowFrame:brian:displays([(0, 0), (1680, 1050)])</key>
+		<string>rect(44,562,1033,1558)</string>
 	</dict>
 	<key>HierarchyData</key>
 	<array>

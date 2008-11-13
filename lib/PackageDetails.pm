@@ -9,7 +9,7 @@ use vars qw($VERSION);
 
 use Carp;
 
-$VERSION = '0.15';
+$VERSION = '0.16';
 
 =head1 NAME
 
@@ -742,6 +742,7 @@ sub add_entry
 	{
 	my( $self, %args ) = @_;
 
+	# should check for allowed columns here
 	push @{ $self->{entries} }, $self->entry_class->new( %args );
 	}
 	
@@ -757,9 +758,12 @@ sub as_string
 	my( $self ) = @_;
 	
 	my $entries;
-	my $k = 'package_name'; # $k
+	my( $k1, $k2 ) = ( $self->columns )[0,1];
 	
-	foreach my $entry ( sort { $a->{$k} cmp $b->{$k} } @{ $self->entries } )
+	foreach my $entry ( 
+		sort { $a->{$k1} cmp $b->{$k1} || $a->{$k2} <=> $b->{$k2} } 
+		@{ $self->entries } 
+		)
 		{
 		$entries .= $entry->as_string( $self->columns );
 		}
