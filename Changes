@@ -1,5 +1,9 @@
 Changes for CPAN::PackageDetails
 
+0.17 - Fri Feb 13 14:29:33 2009
+	* Format the date the way CPAN.pm expects it, despite the
+	locale of the user. Everyone should upgrade to this version.
+
 0.15 - Mon Nov 10 07:58:39 2008
 	* Sort the package names in the output
 
