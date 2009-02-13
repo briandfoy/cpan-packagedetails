@@ -753,6 +753,21 @@ sub add_entry
 	{
 	my( $self, %args ) = @_;
 
+	# The column name has a space in it, but that looks weird in a 
+	# hash constructor and I keep doing it wrong. If I type "package_name"
+	# I'll just make it work.
+	if( exists $args{package_name} )
+		{
+		$args{'package name'} = $args{package_name};
+		delete $args{package_name};
+		}
+		
+	unless( defined $args{'package name'} )
+		{
+		carp "No 'package name' parameter!";
+		return;
+		}
+		
 	# should check for allowed columns here
 	push @{ $self->{entries} }, $self->entry_class->new( %args );
 	}
@@ -891,7 +906,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2008, brian d foy, All Rights Reserved.
+Copyright (c) 2009, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 
