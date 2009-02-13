@@ -9,7 +9,7 @@ use vars qw($VERSION);
 
 use Carp;
 
-$VERSION = '0.16';
+$VERSION = '0.17';
 
 =head1 NAME
 
@@ -22,7 +22,6 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 	# read an existing file #####################
 	my $package_details = CPAN::PackageDetails->read( $filename );
 	
-	my $creator    = $package_details->creator;  # See CPAN::PackageDetails::Header too
 	my $count      = $package_details->count;
 	
 	my $records    = $package_details->entries;
@@ -40,7 +39,7 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 		package => qr/^Test::/, # or a string
 		author  => 'OVID',      # case insenstive
 		path    =>  qr/foo/,
-		)
+		);
 	
 	# create a new file #####################
 	my $package_details = CPAN::PackageDetails->new( 
@@ -141,7 +140,18 @@ Write the date in PAUSE format. For example:
 	
 =cut
 
-sub format_date { join ", ", split /\s+/, scalar gmtime, 2 }
+sub format_date 
+	{ 
+	my( $second, $minute, $hour, $date, $monnum, $year, $wday )  = gmtime;
+	$year += 1900;
+
+	my $day   = ( qw(Sun Mon Tue Wed Thu Fri Sat) )[$wday];
+	my $month = ( qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) )[$monnum];
+
+	sprintf "%s, %02d %s %4d %02d:%02d:%02d GMT",
+		$day, $date, $month, $year, $hour, $minute, $second;
+	}
+
 
 BEGIN {
 my %defaults = (
@@ -471,6 +481,7 @@ so it can put it in the "Line-Count" header.
 	CPAN::PackageDetails::Header->new(
 		_entries => $entries_object,
 		)
+
 =cut
 
 sub new { 

@@ -7,6 +7,7 @@ MANIFEST			This list of files
 README
 t/as_string.t
 t/autoload.t
+t/format_date.t
 t/get_header.t
 t/load.t
 t/new.t
