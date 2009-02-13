@@ -8,7 +8,6 @@ my $package_details = CPAN::PackageDetails->new(
 	description  => "Package names for my private CPAN",
 	columns      => "package name, version, path",
 	intended_for => "My private CPAN",
-	written_by   => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
 	last_updated => CPAN::PackageDetails->format_date,
 	);
 
