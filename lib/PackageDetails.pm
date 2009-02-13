@@ -9,7 +9,9 @@ use vars qw($VERSION);
 
 use Carp;
 
-BEGIN { $VERSION = '0.17_01' }; # needed right away to set defaults at compile-time
+BEGIN { 
+	$VERSION = '0.17_02' 
+	}; # needed right away to set defaults at compile-time
 
 =head1 NAME
 
