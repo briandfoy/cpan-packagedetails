@@ -1,5 +1,5 @@
 Changes
-examples/placeholder.pl
+examples/make_02packages.pl
 lib/PackageDetails.pm
 LICENSE
 Makefile.PL
