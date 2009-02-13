@@ -4,6 +4,7 @@ pod_coverage.t
 autoload.t
 new.t
 read.t
+format_date.t
 get_header.t
 as_string.t
 write_file.t
