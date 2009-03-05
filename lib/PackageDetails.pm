@@ -10,7 +10,7 @@ use vars qw($VERSION);
 use Carp;
 
 BEGIN { 
-	$VERSION = '0.17_02' 
+	$VERSION = '0.17_03' 
 	}; # needed right away to set defaults at compile-time
 
 =head1 NAME
@@ -208,7 +208,7 @@ sub CPAN::PackageDetails::Header::AUTOLOAD
 # them to the right delegate
 my %Dispatch = (
 		header  => { map { $_, 1 } qw(get_header set_header header_exists columns_as_list) },
-		entries => { map { $_, 1 } qw(add_entry count) },
+		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
 		
@@ -619,7 +619,7 @@ sub as_string
 		push @lines, "$out_field: $value";
 		}
 		
-	push @lines, "Line-Count: " . $self->_entries->count;
+	push @lines, "Line-Count: " . $self->_entries->as_unique_sorted_list;
 	
 	join "\n", sort( @lines ), "\n";
 	}
@@ -730,7 +730,9 @@ sub columns { @{ $_[0]->{columns} } };
 
 =item count
 
-Returns the number of entries.
+Returns the number of entries. This is not the same as the number of
+lines that would show up in the F<02packages.details.txt> file since
+this method counts duplicates as well. 
 
 =cut
 
@@ -755,6 +757,8 @@ sub add_entry
 	{
 	my( $self, %args ) = @_;
 
+	$self->_mark_as_dirty;
+	
 	# The column name has a space in it, but that looks weird in a 
 	# hash constructor and I keep doing it wrong. If I type "package_name"
 	# I'll just make it work.
@@ -773,6 +777,11 @@ sub add_entry
 	# should check for allowed columns here
 	push @{ $self->{entries} }, $self->entry_class->new( %args );
 	}
+
+sub _mark_as_dirty
+	{
+	delete $_[0]->{sorted};
+	}
 	
 =item as_string
 
@@ -785,29 +794,56 @@ sub as_string
 	{
 	my( $self ) = @_;
 	
-	my $entries;
-	my( $k1, $k2 ) = ( $self->columns )[0,1];
+	my $string;
 	
-	my %Seen;
-	foreach my $entry ( 
-		grep { ! $Seen{ $_->{$k1} }++ }
-		sort { $a->{$k1} cmp $b->{$k1} || $b->{$k2} <=> $a->{$k2} } 
-		@{ $self->entries } 
-		)
+	foreach my $entry ( $self->as_unique_sorted_list )
 		{
-		$entries .= $entry->as_string( $self->columns );
+		$string .= $entry->as_string( $self->columns );
 		}
 	
-	$entries || '';
+	$string || '';
+	}
+
+=item as_unique_sorted_list
+
+In list context, this returns a list of entries sorted by package name
+and version. Each package exists exactly once in the list and with the
+largest version number seen.
+
+In scalar context this returns the count of the number of unique entries.
+
+=cut
+
+sub as_unique_sorted_list
+	{
+	my( $self ) = @_;
+
+	unless( ref $self->{sorted} eq ref [] )
+		{
+		my %Seen;
+
+		my( $k1, $k2 ) = ( $self->columns )[0,1];
+
+		$self->{sorted} = [
+			grep { ! $Seen{ $_->{$k1} }++ }
+				sort { $a->{$k1} cmp $b->{$k1} || $b->{$k2} <=> $a->{$k2} } 
+				@{ $self->entries }
+			];
+		}
+		
+	return wantarray ? 
+		@{ $self->{sorted} } 
+			:
+		scalar  @{ $self->{sorted} }
 	}
 
 }
-
+	
 =back
 
 =head2 Entry
 
-An entry is a single line from 02packages.details.txt that maps a
+An entry is a single line from F<02packages.details.txt> that maps a
 package name to a source. It's a whitespace-separated list that
 has the values for the column identified in the "columns" field
 in the header.

@@ -6,5 +6,6 @@ new.t
 read.t
 format_date.t
 get_header.t
+unique_sorted.t
 as_string.t
 write_file.t

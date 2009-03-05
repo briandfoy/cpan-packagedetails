@@ -20,4 +20,5 @@ t/test_files/02packages.details.txt.gz
 t/test_manifest
 t/test_regression/no_entries.gz
 t/test_regression/three_entries.gz
+t/unique_sorted.t
 t/write_file.t
