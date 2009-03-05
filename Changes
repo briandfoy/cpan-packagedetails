@@ -1,5 +1,11 @@
 Changes for CPAN::PackageDetails
 
+0.17_03 - Thu Mar  5 04:33:46 2009
+	* ->as_unique_sorted_list() returns just the latest version for
+	each package name, no matter what you've added.
+	* Now that I can get the unique list, I can fix the line 
+	count in the header.
+
 0.17 - Fri Feb 13 14:29:33 2009
 	* Format the date the way CPAN.pm expects it, despite the
 	locale of the user. Everyone should upgrade to this version.
