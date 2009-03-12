@@ -10,7 +10,7 @@ use vars qw($VERSION);
 use Carp;
 
 BEGIN { 
-	$VERSION = '0.17_03' 
+	$VERSION = '0.18' 
 	}; # needed right away to set defaults at compile-time
 
 =head1 NAME
