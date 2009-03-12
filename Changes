@@ -1,5 +1,11 @@
 Changes for CPAN::PackageDetails
 
+0.18 - Thu Mar 12 05:59:37 2009
+	* Fixed a problem counting the number of entries that would be
+	in the file
+	* Now you can get a list of just the highest version of any
+	package that you add
+
 0.17_03 - Thu Mar  5 04:33:46 2009
 	* ->as_unique_sorted_list() returns just the latest version for
 	each package name, no matter what you've added.
