@@ -23,5 +23,4 @@ WriteMakefile(
 		},
 
 	clean  => { FILES    => q|CPAN-PackageDetails-* t/test_output| },
-
 	);
