@@ -18,6 +18,7 @@ ok( -e $file, "Test file $file exists" );
 my $lines = 1439;
 
 my $package_details = $class->$method( $file );
+
 isa_ok( $package_details, $class );
 is( $package_details->source_file, $file, "Get back the right filename");
 

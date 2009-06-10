@@ -52,6 +52,7 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 		intended_for => "My private CPAN",
 		written_by   => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
 		last_updated => CPAN::PackageDetails->format_date,
+		allow_packages_only_once => 1,
 		);
 
 	$package_details->add_entry(
@@ -68,11 +69,11 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 	
 =head1 DESCRIPTION
 
-CPAN uses an index file, 02packages.details.txt.gz, to map package names to
+CPAN uses an index file, F<02packages.details.txt.gz>, to map package names to
 distribution files. Using this module, you can get a data structure of that
 file, or create your own.
 
-There are two parts to the 02packages.details.txt.gz: a header and the index.
+There are two parts to the F<02packages.details.txt.g>z: a header and the index.
 This module uses a top-level C<CPAN::PackageDetails> object to control
 everything and comprise an C<CPAN::PackageDetails::Header> and
 C<CPAN::PackageDetails::Entries> object. The C<CPAN::PackageDetails::Entries>
@@ -93,13 +94,16 @@ Entry objects.
 
 =item new
 
-Create a new 02packages.details.txt.gz file. The C<default_headers>
+Create a new F<02packages.details.txt.gz> file. The C<default_headers>
 method shows you which values you can pass to C<new>. For instance:
 
 	my $package_details = CPAN::PackageDetails->new(
 		url     => $url,
 		columns => 'author, package name, version, path',
 		)
+
+If you specify the C<allow_packages_only_once> option with a true value
+and you try to add that package twice, the object will die. See C<add_entry>.
 
 =cut
 
@@ -166,12 +170,13 @@ my %defaults = (
 	header_class    => 'CPAN::PackageDetails::Header',
 	entries_class   => 'CPAN::PackageDetails::Entries',
 	entry_class     => 'CPAN::PackageDetails::Entry',
+	allow_packages_only_once => 1,
 	);
 	
 sub default_headers
 	{ 
 	map { $_, $defaults{$_} } 
-		grep ! /^_class/, keys %defaults 
+		grep ! /_class|allow/, keys %defaults 
 	}
 
 sub CPAN::PackageDetails::Header::can
@@ -207,7 +212,7 @@ sub CPAN::PackageDetails::Header::AUTOLOAD
 # them to the right delegate
 my %Dispatch = (
 		header  => { map { $_, 1 } qw(get_header set_header header_exists columns_as_list) },
-		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list) },
+		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
 		
@@ -271,10 +276,11 @@ sub init
 		}
 	
 	$self->{entries} = $self->entries_class->new(
-		entry_class => $self->entry_class,
-		columns     => [ split /,\s+/, $config{columns} ],
+		entry_class              => $self->entry_class,
+		columns                  => [ split /,\s+/, $config{columns} ],
+		allow_packages_only_once => $config{allow_packages_only_once},
 		);
-
+	
 	$self->{header}  = $self->header_class->new(
 		_entries => $self->entries,
 		);
@@ -647,7 +653,7 @@ by passing the C<entries_class> option:
 	CPAN::PackageDetails->new(
 		...,
 		entries_class => $class,
-		)
+		);
 
 Note that you are responsible for loading the right class yourself.
 
@@ -676,7 +682,7 @@ sub entries { $_[0]->{entries} }
 
 =back
 
-=head3 Methods is CPAN::PackageDetails::Entries
+=head3 Methods in CPAN::PackageDetails::Entries
 
 =over 4
 
@@ -695,16 +701,20 @@ to it, use C<add_entry>.
 
 	entry_class => the class to use for each entry object
 	columns     => the column names, in order that you want them in the output
-	
+
+If you specify the C<allow_packages_only_once> option with a true value
+and you try to add that package twice, the object will die. See C<add_entry>.
+
 =cut
 
 sub new { 
 	my( $class, %args ) = @_;
 	
 	my %hash = ( 
-		entry_class => 'CPAN::PackageDetails::Entry',
-		columns     => [],
-		entries     => [],
+		entry_class              => 'CPAN::PackageDetails::Entry',
+		allow_packages_only_once => 1,
+		columns                  => [],
+		entries                  => {},
 		%args
 		);
 		
@@ -735,20 +745,49 @@ this method counts duplicates as well.
 
 =cut
 
-sub count { scalar @{$_[0]->{entries}} }
+sub count 
+	{ 
+	my $self = shift;
+	
+	my $count = 0;
+	foreach my $package ( keys %{ $self->{entries} } )
+		{
+		$count += keys %{ $self->{entries}{$package} };
+		}
+		
+	return $count;
+	}
 
 =item entries
 
-Returns an array reference of Entry objects.
+Returns the Entries object.
 
 =cut
 
 sub entries { $_[0]->{entries} }
 
+=item allow_packages_only_once( [ARG] )
+
+=cut
+
+sub allow_packages_only_once
+	{	
+	$_[0]->{allow_packages_only_once} = $_[1] if defined $_[1];
+	
+	$_[0]->{allow_packages_only_once};
+	}
+	
 =item add_entry
 
 Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
 object and it will take care of finding the right handler.
+
+If you've set C<allow_packages_only_once> to a true value (which is the
+default, too), C<add_entry> will die if you try to add another entry with
+the same package name even if it has a different or greater version. You can
+set this to a false value and add as many entries as you like then use
+C<as_unqiue_sorted_list> to get just the entries with the highest 
+versions for each package.
 
 =cut
 
@@ -766,22 +805,41 @@ sub add_entry
 		$args{'package name'} = $args{package_name};
 		delete $args{package_name};
 		}
-		
+	
+	$args{'version'} = 'undef' unless defined $args{'version'};
+	
 	unless( defined $args{'package name'} )
 		{
 		carp "No 'package name' parameter!";
 		return;
 		}
 		
+	if( $self->allow_packages_only_once and $self->already_added( $args{'package name'} ) )
+		{
+		croak "$args{'package name'} was already added to CPAN::PackageDetails!";
+		return;
+		}
+	
 	# should check for allowed columns here
-	push @{ $self->{entries} }, $self->entry_class->new( %args );
+	$self->{entries}{
+		$args{'package name'}
+		}{$args{'version'}
+			} = $self->entry_class->new( %args );
 	}
 
 sub _mark_as_dirty
 	{
 	delete $_[0]->{sorted};
 	}
-	
+
+=item already_added( PACKAGE )
+
+Returns true if there is already an entry for PACKAGE.
+
+=cut
+
+sub already_added { exists $_[0]->{entries}{$_[1]} }
+
 =item as_string
 
 Returns a text version of the Entries object. This calls C<as_string>
@@ -795,7 +853,9 @@ sub as_string
 	
 	my $string;
 	
-	foreach my $entry ( $self->as_unique_sorted_list )
+	my( $return ) = $self->as_unique_sorted_list;
+	
+	foreach my $entry ( @$return )
 		{
 		$string .= $entry->as_string( $self->columns );
 		}
@@ -811,29 +871,42 @@ largest version number seen.
 
 In scalar context this returns the count of the number of unique entries.
 
+Once called, it caches its result until you add more entries.
+
 =cut
 
 sub as_unique_sorted_list
 	{
 	my( $self ) = @_;
 
+	
 	unless( ref $self->{sorted} eq ref [] )
 		{
+		$self->{sorted} = [];
+		
 		my %Seen;
 
 		my( $k1, $k2 ) = ( $self->columns )[0,1];
 
-		$self->{sorted} = [
-			grep { ! $Seen{ $_->{$k1} }++ }
-				sort { $a->{$k1} cmp $b->{$k1} || $b->{$k2} <=> $a->{$k2} } 
-				@{ $self->entries }
-			];
-		}
+		my $e = $self->entries;
 		
-	return wantarray ? 
-		@{ $self->{sorted} } 
+	# We only want the latest versions of everything:
+		foreach my $package ( sort keys %$e )
+			{
+			my( $highest_version ) = 
+				sort { $e->{$package}{$b} <=> $e->{$package}{$b} }
+				keys %{ $e->{$package} };
+			
+			push @{ $self->{sorted} }, $e->{$package}{$highest_version};
+			}
+		}
+	
+	my $return = wantarray ? 
+		$self->{sorted} 
 			:
-		scalar  @{ $self->{sorted} }
+		scalar  @{ $self->{sorted} };
+	
+	return $return;
 	}
 
 }
