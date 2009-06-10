@@ -10,7 +10,7 @@ use vars qw($VERSION);
 use Carp;
 
 BEGIN { 
-	$VERSION = '0.18' 
+	$VERSION = '0.19' 
 	}; # needed right away to set defaults at compile-time
 
 =head1 NAME
@@ -61,7 +61,6 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 		);
 		
 	print "About to write ", $package_details->count, " entries\n";
-	my $big_string = $package_details->as_string;
 	
 	$package_details->write_file( $file );
 	

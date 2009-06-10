@@ -9,3 +9,5 @@ cover_db
 t/test_output
 *.tmproj
 bbedit.bbproject
+02*
+nyt*
