@@ -1,4 +1,6 @@
 use Test::More 'no_plan';
+use strict;
+use warnings;
 
 use File::Spec::Functions;
 use File::Temp;
@@ -14,14 +16,15 @@ use_ok( $class );
 {
 my $basename = 'three_entries.gz';
 
-my $package_details = $class->new;
+my $package_details = $class->new( allow_packages_only_once => 0 );
 isa_ok( $package_details, $class );
 can_ok( $package_details, $method );
+
+is( $package_details->allow_packages_only_once, 0, "allow_packages_only_once is false" );
 
 can_ok( $package_details->entries, $method );
 
 my @entries_to_add = (
-	[ 'Foo::Bar', '1.01',    '/a/b/c/Foo-1.01.tgz'],
 	[ 'Foo::Bar', '1.01',    '/a/b/c/Foo-1.01.tgz'],
 	[ 'Foo::Bar', '1.02',    '/a/b/c/Foo-1.02.tgz'],
 	[ 'Foo::Baz', '1.02_01', '/a/b/c/Foo-Baz-1.02_01.tgz'],	
@@ -30,28 +33,29 @@ my @entries_to_add = (
 	
 foreach my $tuple ( @entries_to_add )
 	{
-	my $rc = $package_details->add_entry(
+	my $rc = eval { $package_details->add_entry(
 		'package name' => $tuple->[0],
 		version        => $tuple->[1],
 		path           => $tuple->[2],
-		);
+		) };
 		
 	ok( $rc, "Added entry for $tuple->[0]" );
 	}
-	
+
 is( $package_details->count, scalar @entries_to_add, 
 		"Count is the same number as added entries" );
 
 is( scalar $package_details->$method, 3,
 	"There are only three unique packages" );
 	
-my @list = $package_details->$method;
-is( $list[0]->{'package name'}, 'Foo::Bar', "Foo::Bar is the first one in the list" );
-is( $list[0]->{version}, '1.02',     "Foo::Bar has latest version" );
+my( $list )= $package_details->$method;
 
-is( $list[1]->{'package name'}, 'Foo::Baz', "Foo::Baz is the second one in the list" );
+is( $list->[0]{'package name'}, 'Foo::Bar', "Foo::Bar is the first one in the list" );
+is( $list->[0]{version}, '1.02',     "Foo::Bar has latest version" );
 
-is( $list[-1]->{'package name'}, 'Quux', "Quux is the last one in the list" );
+is( $list->[1]{'package name'}, 'Foo::Baz', "Foo::Baz is the second one in the list" );
+
+is( $list->[-1]{'package name'}, 'Quux', "Quux is the last one in the list" );
 
 
 #my $string = $package_details->as_string;

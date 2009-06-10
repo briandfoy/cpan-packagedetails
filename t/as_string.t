@@ -40,9 +40,17 @@ is( $package_details->count, scalar @entries_to_add,
 		"Count is the same number as added entries");
 
 my @columns = ( 'package_name', qw(version path));
-foreach my $entry ( @{ $package_details->entries->{entries} } )
-	{
-	ok( length( $entry->as_string( @columns ) ) > 1, "Some sort of string comes back from entry")
+my $entries = $package_details->entries->{entries}; # XXX yuck
+
+foreach my $package ( keys %$entries )
+	{	
+	my $package_hash = $entries->{$package};
+	
+	foreach my $hash ( values %$package_hash )
+		{
+		my $entry = $hash;
+		ok( length( $entry->as_string( @columns ) ) > 1, "Some sort of string comes back from entry")
+		}
 	}
 
 }
