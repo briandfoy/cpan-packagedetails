@@ -1,5 +1,9 @@
 Changes for CPAN::PackageDetails
 
+0.20 - Fri Jul 17 03:47:00 2009
+	* Write to a temporary file first, then rename to the final
+	name so parallel runs don't write to the same file.
+
 0.19 - Wed Jun 10 18:42:10 2009
 	* Improve performance a bit by re-jiggering the internal 
 	data structure for easier data slicing
