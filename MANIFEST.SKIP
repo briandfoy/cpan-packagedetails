@@ -25,3 +25,5 @@ CPAN-.*
 TODO
 .tmproj
 profile
+nytprof
+^02packages.*gz
