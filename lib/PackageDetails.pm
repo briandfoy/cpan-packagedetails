@@ -10,7 +10,7 @@ use vars qw($VERSION);
 use Carp;
 
 BEGIN { 
-	$VERSION = '0.19' 
+	$VERSION = '0.20' 
 	}; # needed right away to set defaults at compile-time
 
 =head1 NAME
@@ -374,11 +374,12 @@ sub _parse
 
 =item write_file( OUTPUT_FILE )
 
-Formats the object as a string and writes it to the file named
-in OUTPUT_FILE. It gzips the output.
+Formats the object as a string and writes it to a temporary file and
+gzips the output. When everything is complete, it renames the temporary
+file to its final name.
 
-C<write_file> carps and returns nothing if you pass it no arguments 
-or it cannot open OUTPUT_FILE for writing.
+C<write_file> carps and returns nothing if you pass it no arguments, if 
+it cannot open OUTPUT_FILE for writing, or if it cannot rename the file.
 
 =cut
 
@@ -394,12 +395,21 @@ sub write_file
 	
 	require IO::Compress::Gzip;
 	
-	my $fh = IO::Compress::Gzip->new( $output_file ) or do {
-		carp "Could not open $output_file for writing: $IO::Compress::Gzip::GzipError";
+	my $fh = IO::Compress::Gzip->new( "$output_file.$$" ) or do {
+		carp "Could not open $output_file.$$ for writing: $IO::Compress::Gzip::GzipError";
 		return;
 		};
 	
 	$self->write_fh( $fh );
+	$fh->close;
+	
+	unless( rename "$output_file.$$", $output_file )
+		{
+		carp "Could not rename temporary file to $output_file!\n";
+		return;
+		}
+		
+	return 1;
 	}
 
 =item write_fh( FILEHANDLE )
