@@ -6,7 +6,6 @@ corpus/bad/no_entries.txt.gz
 corpus/cpan/L/LO/LOCAL/Local-Bar-4.56.tar.gz
 corpus/cpan/L/LO/LOCAL/Local-Foo-1.23.tar.gz
 corpus/good/no_tricks.txt.gz
-examples/check_02packages.pl
 examples/make_02packages.pl
 lib/PackageDetails.pm
 LICENSE
