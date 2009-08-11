@@ -294,11 +294,7 @@ sub init
 		}
 		
 	}
-<<<<<<< HEAD:lib/PackageDetails.pm
 
-=======
-	
->>>>>>> 6ba3c4212a4d7dac671c9808924c9099eee4941c:lib/PackageDetails.pm
 }
 
 =item read( FILE )
