@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 
 require 5.008;
 
-eval "use Test::Manifest 1.21";
+eval "use Test::Manifest 1.23";
 
 WriteMakefile(
 	'NAME'	       => 'CPAN::PackageDetails',

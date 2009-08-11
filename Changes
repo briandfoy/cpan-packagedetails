@@ -1,5 +1,16 @@
 Changes for CPAN::PackageDetails
 
+0.20 - Fri Jul 17 03:47:00 2009
+	* Write to a temporary file first, then rename to the final
+	name so parallel runs don't write to the same file.
+
+0.19 - Wed Jun 10 18:42:10 2009
+	* Improve performance a bit by re-jiggering the internal 
+	data structure for easier data slicing
+	* Add the allow_packages_only_once configuration option
+	and the already_added() method to allow better performance
+	by remembering less.
+
 0.18 - Thu Mar 12 05:59:37 2009
 	* Fixed a problem counting the number of entries that would be
 	in the file

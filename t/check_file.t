@@ -25,7 +25,7 @@ foreach my $pair ( @files )
 	
 	my $result = eval { $class->$method( $file, $cpan_path ) };
 	my $at = $@;
-	# diag( "$file had an error: [$at]" ) if $at;
+	#diag( "$file had an error: [$at]" ) if $at;
 	
 	is( !! $result, !! $expected, 
 		$expected ?

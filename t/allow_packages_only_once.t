@@ -19,7 +19,7 @@ can_ok( $class, 'already_added' );
 my $basename = 'three_entries.gz';
 
 my $package_details = $class->new;
-ok( $package_details->$method, "allow_packages_only_once is true by default" );
+ok( $package_details->$method, "$method is true by default" );
 
 my @entries = (
 	[ qw( Animal::Cat::Buster 1.23 ) ],
@@ -52,7 +52,7 @@ my $rc = eval {
 my $at = $@;
 
 ok( ! defined $rc, "Re-added $entries[0][0] had problems (good)" );
-like( $at, qr/already been added/, "Error message notes that $entries[0][0] is already indexed" );
+like( $at, qr/was already added/, "Error message notes that $entries[0][0] is already indexed" );
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

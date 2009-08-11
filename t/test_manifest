@@ -6,6 +6,7 @@ new.t
 read.t
 format_date.t
 get_header.t
+allow_packages_only_once.t
 unique_sorted.t
 as_string.t
 write_file.t
