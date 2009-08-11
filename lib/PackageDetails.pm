@@ -8,9 +8,10 @@ use subs qw();
 use vars qw($VERSION);
 
 use Carp;
+use File::Spec::Functions;
 
 BEGIN { 
-	$VERSION = '0.18' 
+	$VERSION = '0.18_01'; 
 	}; # needed right away to set defaults at compile-time
 
 =head1 NAME
@@ -65,6 +66,8 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 	
 	$package_details->write_file( $file );
 	
+	 # OR ...
+	 
 	$package_details->write_fh( \*STDOUT )
 	
 =head1 DESCRIPTION
@@ -286,7 +289,7 @@ sub init
 		}
 		
 	}
-	
+
 }
 
 =item read( FILE )
@@ -410,6 +413,106 @@ sub write_fh
 	print $fh $self->header->as_string, $self->entries->as_string;
 	}
 	
+=item check_file
+
+
+=cut
+
+sub check_file
+	{
+	my( $self, $file, $cpan_path ) = @_;
+
+	# file exists
+	croak( "File [$file] does not exist!" ) unless -e $file;
+
+	# file is gzipped
+
+	# check header # # # # # # # # # # # # # # # # # # #
+	my $packages = $self->read( $file );
+	
+	# count of entries in non-zero # # # # # # # # # # # # # # # # # # #
+	my $header_count = $packages->get_header( 'line_count' );
+	croak( "The header says there are no entries!" ) 
+		if $header_count == 0;
+		
+	# count of lines matches # # # # # # # # # # # # # # # # # # #
+	my $entries_count = $packages->count;
+
+	croak( "Entry count mismatch? " .
+		"The header says $header_count but there are only $entries_count records" )
+		unless $header_count == $entries_count;
+
+	# all listed distributions are in repo # # # # # # # # # # # # # # # # # # #
+	my @missing;
+	if( defined $cpan_path )
+		{
+		croak( "CPAN path [$cpan_path] does not exist!" ) unless -e $cpan_path;
+		
+		# this entries syntax really sucks
+		foreach my $entry ( @{ $packages->entries->entries } )
+			{
+			my $path = $entry->path;
+			
+			my $native_path = catfile( $cpan_path, split m|/|, $path );
+			
+			push @missing, $path unless -e $native_path;
+			}
+			
+		croak( 
+			"Some paths in $file do not show up under $cpan_path\n" .
+			join( "\n\t", @missing ), "\n" 
+			)
+			if @missing;
+			
+		}
+
+	# all repo distributions are listed # # # # # # # # # # # # # # # # # # #
+	if( defined $cpan_path )
+		{
+		croak( "CPAN path [$cpan_path] does not exist!" ) unless -e $cpan_path;
+
+		my %files = map { $_, 1 } @{ $self->_get_repo_dists( $cpan_path ) };
+		#print STDERR "Found " . keys( %files) . " files in repo: @{ [keys %files]}\n";
+		
+		foreach my $entry ( @{ $packages->entries->entries } )
+			{
+			my $path = $entry->path;
+			
+			my $native_path = catfile( $cpan_path, split m|/|, $path );
+			
+			delete $files{$native_path};
+			}
+
+		croak( 
+			"Some paths in $cpan_path do not show up in $file\n" .
+			join( "\n\t", keys %files ), "\n" 
+			)
+			if keys %files;
+		
+		}
+		
+	return 1;
+	}
+
+sub _get_repo_dists
+	{	
+	my( $self, $cpan_home ) = @_;
+				   
+	my @files = ();
+	
+	use File::Find;
+	
+	my $wanted = sub { 
+		push @files, 
+			File::Spec::Functions::canonpath( $File::Find::name ) 
+				if m/\.(?:tar\.gz|tgz|zip)\z/ 
+			};
+	
+	find( $wanted, $cpan_home );
+	
+	return \@files;
+	}
+        
 sub DESTROY {}
 
 =back
@@ -724,10 +827,31 @@ sub entry_class { $_[0]->{entry_class} }
 
 =item columns
 
+Returns a list of the column names in the entry
+
 =cut
 
 sub columns { @{ $_[0]->{columns} } };
 
+=item column_index_for( COLUMN )
+
+Returns the list position of the named COLUMN.
+
+=cut
+
+sub column_index_for
+	{
+	my( $self, $column ) = @_;
+	
+	
+	my $index = grep {  
+		$self->{columns}[$_] eq $column
+		} 0 .. @{ $self->columns };
+		
+	return unless defined $index;
+	return $index;
+	}
+	
 =item count
 
 Returns the number of entries. This is not the same as the number of
@@ -902,6 +1026,20 @@ sub new
 	bless { %args }, $class
 	}
 
+=item path
+
+=item version
+
+=item package_name
+
+Access values of the entry.
+
+=cut
+
+sub path         { $_[0]->{path} }
+sub version      { $_[0]->{version} }
+sub package_name { $_[0]->{'package name'} }
+	
 =item as_string( @column_names )
 
 Formats the Entry as text. It joins with whitespace the values for the 
