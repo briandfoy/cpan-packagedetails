@@ -16,7 +16,7 @@ my $basename = 'three_entries.gz';
 
 my $package_details = $class->new;
 isa_ok( $package_details, $class );
-TODO: { local $TODO = "Not implemented"; can_ok( $package_details, $method ); };
+can_ok( $package_details, $method );
 can_ok( $package_details->entries, $method );
 
 my @entries_to_add = (
