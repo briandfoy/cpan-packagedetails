@@ -7,7 +7,7 @@ no warnings;
 use subs qw();
 use vars qw($VERSION);
 
-use Carp;
+use Carp qw(carp croak cluck confess);
 use File::Spec::Functions;
 
 BEGIN { 
@@ -435,15 +435,16 @@ sub write_fh
 
 sub check_file
 	{
-	my( $self, $file, $cpan_path ) = @_;
+	my( $class, $file, $cpan_path ) = @_;
 
 	# file exists
+	croak( "check_file is a class method, but you called it on an instance [$class]" ) if ref $class;
 	croak( "File [$file] does not exist!\n" ) unless -e $file;
 
 	# file is gzipped
 
 	# check header # # # # # # # # # # # # # # # # # # #
-	my $packages = $self->read( $file );
+	my $packages = $class->read( $file );
 	
 	# count of entries in non-zero # # # # # # # # # # # # # # # # # # #
 	my $header_count = $packages->get_header( 'line_count' );
@@ -483,11 +484,12 @@ sub check_file
 		}
 
 	# all repo distributions are listed # # # # # # # # # # # # # # # # # # #
+	# the trick here is to not care about older versions
 	if( defined $cpan_path )
 		{
 		croak( "CPAN path [$cpan_path] does not exist!\n" ) unless -e $cpan_path;
 
-		my %files = map { $_, 1 } @{ $self->_get_repo_dists( $cpan_path ) };
+		my %files = map { $_, 1 } @{ $class->_get_repo_dists( $cpan_path ) };
 		#print STDERR "Found " . keys( %files) . " files in repo: @{ [keys %files]}\n";
 		
 		my( $entries ) = $packages->as_unique_sorted_list;
