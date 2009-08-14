@@ -488,8 +488,27 @@ sub check_file
 	if( defined $cpan_path )
 		{
 		croak( "CPAN path [$cpan_path] does not exist!\n" ) unless -e $cpan_path;
+		require CPAN::DistnameInfo;
 
-		my %files = map { $_, 1 } @{ $class->_get_repo_dists( $cpan_path ) };
+		my %Seen = ();
+		my %files = map { # extract for the hash
+				@$_[0,2]
+				}
+			map { # filter the tuples
+			       # first branch, we've never seen this distro name
+				   if( ! exists $Seen{ $_->[1] } )     { $Seen{$_->[1]} = $_ }
+				   # second branch, the version we see now is greater than before
+				elsif( $Seen{ $_->[1] }[2] < $_->[2] ) { $Seen{$_->[1]} = $_ }
+				   # third branch, nothing
+				else                                   { () }
+				}
+			map { # create the tuples
+				my $path = $_;
+				my $distname = CPAN::DistnameInfo->new($path);
+				my( $name, $version ) = map { $distname->$_ } qw(dist version);
+				[ $path, $name, $version ];
+				} @{ $class->_get_repo_dists( $cpan_path ) }
+			
 		#print STDERR "Found " . keys( %files) . " files in repo: @{ [keys %files]}\n";
 		
 		my( $entries ) = $packages->as_unique_sorted_list;
