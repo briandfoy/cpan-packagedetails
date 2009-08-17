@@ -1,5 +1,13 @@
 Changes for CPAN::PackageDetails
 
+0.21_02 - Sun Aug 16 20:03:44 CDT 2009
+	* add the check_file() routine to compare a 02packages to a
+	repo to see if it matches: all file in the repo in 02packages,
+	all files in 02packages in the repo, etc.
+	* I reorganized the code so all the classes are in separate
+	files. Things are so much easier now, and the dispatching
+	is much easier to follow.
+	
 0.20 - Fri Jul 17 03:47:00 2009
 	* Write to a temporary file first, then rename to the final
 	name so parallel runs don't write to the same file.
@@ -11,15 +19,12 @@ Changes for CPAN::PackageDetails
 	and the already_added() method to allow better performance
 	by remembering less.
 
-<<<<<<< HEAD:Changes
 0.18 - Thu Mar 12 05:59:37 2009
 	* Fixed a problem counting the number of entries that would be
 	in the file
 	* Now you can get a list of just the highest version of any
 	package that you add
 
-=======
->>>>>>> 6ba3c4212a4d7dac671c9808924c9099eee4941c:Changes
 0.17_03 - Thu Mar  5 04:33:46 2009
 	* ->as_unique_sorted_list() returns just the latest version for
 	each package name, no matter what you've added.

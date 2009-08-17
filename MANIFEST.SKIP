@@ -27,3 +27,6 @@ TODO
 profile
 nytprof
 ^02packages.*gz
+_build/
+Build$
+Build.PL

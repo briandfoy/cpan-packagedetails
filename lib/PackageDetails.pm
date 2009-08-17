@@ -9,7 +9,7 @@ use Carp qw(carp croak cluck confess);
 use File::Spec::Functions;
 
 BEGIN {
-	$VERSION = '1.21_02';
+	$VERSION = '0.21_02';
 	}
 
 =head1 NAME
