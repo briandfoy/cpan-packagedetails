@@ -11,3 +11,5 @@ t/test_output
 bbedit.bbproject
 02*
 nyt*
+_build
+Build
