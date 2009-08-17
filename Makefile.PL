@@ -12,7 +12,7 @@ WriteMakefile(
 	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
 
 	'PREREQ_PM'    => { 
-		'CPAN::DistnamInfo'      => '0',
+		'CPAN::DistnameInfo'     => '0',
 		'Test::More'             => '0',
 		'Test::Output'           => '0.10',
 		'IO::Compress::Gzip'     => '0',
