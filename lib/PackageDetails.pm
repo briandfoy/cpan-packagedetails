@@ -1,8 +1,6 @@
 package CPAN::PackageDetails;
 use strict;
-
 use warnings;
-no warnings;
 
 use subs qw();
 use vars qw($VERSION);
@@ -10,9 +8,9 @@ use vars qw($VERSION);
 use Carp qw(carp croak cluck confess);
 use File::Spec::Functions;
 
-BEGIN { 
-	$VERSION = '0.20_01'; 
-	}; # needed right away to set defaults at compile-time
+BEGIN {
+	$VERSION = '1.21_02';
+	}
 
 =head1 NAME
 
@@ -87,7 +85,7 @@ of what class is doing what. You'll call most of the methods on
 the top-level  C<CPAN::PackageDetails> object and it will make sure
 that it gets to the right place.
 
-=head2 Methods in CPAN::PackageDetails.
+=head2 Methods
 
 These methods are in the top-level object, and there are more methods
 for this class in the sections that cover the Header, Entries, and
@@ -140,81 +138,14 @@ Returns the hash of header fields and their default values:
 In the header, these fields show up with the underscores turned into hyphens,
 and the letters at the beginning or after a hyphen are uppercase.
 
-=item format_date
-
-Write the date in PAUSE format. For example:
-
-	Thu, 23 Oct 2008 02:27:36 GMT
-	
 =cut
 
-sub format_date 
-	{ 
-	my( $second, $minute, $hour, $date, $monnum, $year, $wday )  = gmtime;
-	$year += 1900;
-
-	my $day   = ( qw(Sun Mon Tue Wed Thu Fri Sat) )[$wday];
-	my $month = ( qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) )[$monnum];
-
-	sprintf "%s, %02d %s %4d %02d:%02d:%02d GMT",
-		$day, $date, $month, $year, $hour, $minute, $second;
-	}
-
-
 BEGIN {
-my %defaults = (
-	file            => "02packages.details.txt",
-	url             => "http://example.com/MyCPAN/modules/02packages.details.txt",
-	description     => "Package names for my private CPAN",
-	columns         => "package name, version, path",
-	intended_for    => "My private CPAN",
-	written_by      => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
-	last_updated    => __PACKAGE__->format_date,
-	header_class    => 'CPAN::PackageDetails::Header',
-	entries_class   => 'CPAN::PackageDetails::Entries',
-	entry_class     => 'CPAN::PackageDetails::Entry',
-	allow_packages_only_once => 1,
-	);
-	
-sub default_headers
-	{ 
-	map { $_, $defaults{$_} } 
-		grep ! /_class|allow/, keys %defaults 
-	}
-
-sub CPAN::PackageDetails::Header::can
-	{
-	my( $self, @methods ) = @_;
-	
-	my $class = ref $self || $self; # class or instance
-	
-	foreach my $method ( @methods )
-		{
-		next if 
-			defined &{"${class}::$method"} || 
-			$self->header_exists( $method );
-		return 0;
-		}
-		
-	return 1;
-	}
-	
-sub CPAN::PackageDetails::Header::AUTOLOAD
-	{
-	my $self = shift;
-	
-	( my $method = $CPAN::PackageDetails::Header::AUTOLOAD ) =~ s/.*:://;
-	
-	carp "No such method as $method!" unless $self->can( $method );
-	
-	$self->get_header( $method );
-	}
-
 # These methods live in the top level and delegate interfaces
 # so I need to intercept them at the top-level and redirect
 # them to the right delegate
 my %Dispatch = (
-		header  => { map { $_, 1 } qw(get_header set_header header_exists columns_as_list) },
+		header  => { map { $_, 1 } qw(default_headers get_header set_header header_exists columns_as_list) },
 		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
@@ -224,7 +155,7 @@ my %Dispatchable = map { #inverts %Dispatch
 	map { $_, $class } keys %{$Dispatch{$class}} 
 	} keys %Dispatch;
 
-sub CPAN::PackageDetails::can
+sub can
 	{
 	my( $self, @methods ) = @_;
 
@@ -242,16 +173,18 @@ sub CPAN::PackageDetails::can
 	return 1;
 	}
 
-sub CPAN::PackageDetails::AUTOLOAD
+sub AUTOLOAD
 	{
 	my $self = shift;
 	
+	
 	our $AUTOLOAD;
+	carp "There are no AUTOLOADable class methods: $AUTOLOAD" unless ref $self;
 	( my $method = $AUTOLOAD ) =~ s/.*:://;
-
+	
 	if( exists $Dispatchable{$method} )
 		{
-		my $delegate = $Dispatchable{$method};		
+		my $delegate = $Dispatchable{$method};	
 		return $self->$delegate()->$method(@_)
 		}
 	elsif( $self->header_exists( $method ) )
@@ -264,6 +197,23 @@ sub CPAN::PackageDetails::AUTOLOAD
 		return;
 		}
 	}
+}
+
+BEGIN {
+my %defaults = (
+	file            => "02packages.details.txt",
+	url             => "http://example.com/MyCPAN/modules/02packages.details.txt",
+	description     => "Package names for my private CPAN",
+	columns         => "package name, version, path",
+	intended_for    => "My private CPAN",
+	written_by      => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
+
+	header_class    => 'CPAN::PackageDetails::Header',
+	entries_class   => 'CPAN::PackageDetails::Entries',
+	entry_class     => 'CPAN::PackageDetails::Entry',
+
+	allow_packages_only_once => 1,
+	);
 	
 sub init
 	{
@@ -278,6 +228,11 @@ sub init
 		delete $config{$key};
 		}
 	
+	foreach my $class ( map { $self->$_ } qw(header_class entries_class entry_class) )
+		{
+		eval "require $class";
+		}
+	
 	$self->{entries} = $self->entries_class->new(
 		entry_class              => $self->entry_class,
 		columns                  => [ split /,\s+/, $config{columns} ],
@@ -288,10 +243,16 @@ sub init
 		_entries => $self->entries,
 		);
 	
+	
 	foreach my $key ( keys %config )
 		{
 		$self->header->set_header( $key, $config{$key} );
 		}
+
+	$self->header->set_header( 
+		'last_updated', 
+		$self->header->format_date 
+		);
 		
 	}
 
@@ -488,30 +449,15 @@ sub check_file
 	if( defined $cpan_path )
 		{
 		croak( "CPAN path [$cpan_path] does not exist!\n" ) unless -e $cpan_path;
-		require CPAN::DistnameInfo;
-
-		my %Seen = ();
-		my %files = map { # extract for the hash
-				@$_[0,2]
-				}
-			map { # filter the tuples
-			       # first branch, we've never seen this distro name
-				   if( ! exists $Seen{ $_->[1] } )     { $Seen{$_->[1]} = $_ }
-				   # second branch, the version we see now is greater than before
-				elsif( $Seen{ $_->[1] }[2] < $_->[2] ) { $Seen{$_->[1]} = $_ }
-				   # third branch, nothing
-				else                                   { () }
-				}
-			map { # create the tuples
-				my $path = $_;
-				my $distname = CPAN::DistnameInfo->new($path);
-				my( $name, $version ) = map { $distname->$_ } qw(dist version);
-				[ $path, $name, $version ];
-				} @{ $class->_get_repo_dists( $cpan_path ) }
 			
-		#print STDERR "Found " . keys( %files) . " files in repo: @{ [keys %files]}\n";
+		my $dists = $class->_get_repo_dists( $cpan_path );
+		
+		$class->_filter_older_dists( $dists );
+		
+		my %files = map { $_, 1 } @$dists;
 		
 		my( $entries ) = $packages->as_unique_sorted_list;
+
 		foreach my $entry ( @$entries )
 			{
 			my $path = $entry->path;
@@ -532,6 +478,37 @@ sub check_file
 	return 1;
 	}
 
+sub _filter_older_dists
+	{
+	my( $self, $array ) = @_;
+
+	require CPAN::DistnameInfo;
+	
+	my %Seen;
+	
+	my @temp = map { # extract for the hash
+			$_->[0]
+			}
+		map { 
+			   # first branch, we've never seen this distro name
+			   if( ! exists $Seen{ $_->[1] } )     { $Seen{$_->[1]} = $_ }
+			   # second branch, the version we see now is greater than before
+			elsif( $Seen{ $_->[1] }[2] < $_->[2] ) { $Seen{$_->[1]} = $_ }
+			   # third branch, nothing. Really? Are you sure there's not another case?
+			else                                   { () }
+			}
+		map { # create the tuples
+			my $path = $_;
+			my $distname = CPAN::DistnameInfo->new($path);
+			my( $name, $version ) = map { $distname->$_ } qw(dist version);
+			[ $path, $name, $version ];
+			} @$array;
+	
+	@$array = @temp;
+	
+	return 1;
+	}
+	
 sub _get_repo_dists
 	{	
 	my( $self, $cpan_home ) = @_;
@@ -555,25 +532,6 @@ sub DESTROY {}
 
 =back
 
-=head2 Headers
-
-The 02packages.details.txt.gz header is a short preamble that give information
-about the creation of the file, its intended use, and the number of entries in
-the file. It looks something like:
-
-	File:         02packages.details.txt
-	URL:          http://www.perl.com/CPAN/modules/02packages.details.txt
-	Description:  Package names found in directory $CPAN/authors/id/
-	Columns:      package name, version, path
-	Intended-For: Automated fetch routines, namespace documentation.
-	Written-By:   Id: mldistwatch.pm 1063 2008-09-23 05:23:57Z k 
-	Line-Count:   59754
-	Last-Updated: Thu, 23 Oct 2008 02:27:36 GMT
-
-Note that there is a Columns field. This module tries to respect the ordering
-of columns in there. The usual CPAN tools expect only three columns and in the
-order in this example, but C<CPAN::PackageDetails> tries to handle any number
-of columns in any order.
 
 =head3 Methods in CPAN::PackageDetails
 
@@ -604,169 +562,6 @@ sub header { $_[0]->{header} }
 
 =cut
 
-{
-package CPAN::PackageDetails::Header;
-use Carp;
-
-sub DESTROY { }
-
-=item new( HASH ) 
-
-Create a new Header object. Unless you want a lot of work so you
-get more control, just let C<CPAN::PackageDetails>'s C<new> or C<read>
-handle this for you.
-
-In most cases, you'll want to create the Entries object first then
-pass a reference the the Entries object to C<new> since the header 
-object needs to know how to get the count of the number of entries
-so it can put it in the "Line-Count" header.
-
-	CPAN::PackageDetails::Header->new(
-		_entries => $entries_object,
-		)
-
-=cut
-
-sub new { 
-	my( $class, %args ) = @_;
-	
-	my %hash = ( 
-		_entries => undef,
-		%args
-		);
-			
-	bless \%hash, $_[0] 
-	}
-
-=item set_header
-
-Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
-object and it will take care of finding the right handler.
-
-=cut
-
-sub set_header
-	{
-	my( $self, $field, $value ) = @_;
-	
-	$self->{$field} = $value;
-	}
-
-=item header_exists( FIELD )
-
-Returns true if the header has a field named FIELD, regardless of
-its value.
-
-=cut
-
-sub header_exists 
-	{
-	my( $self, $field ) = @_;
-
-	exists $self->{$field}
-	}
-	
-=item get_header( FIELD )
-
-Returns the value for the named header FIELD. Carps and returns nothing
-if the named header is not in the object. This method is available from
-the C<CPAN::PackageDetails> or C<CPAN::PackageDetails::Header> object:
-
-	$package_details->get_header( 'url' );
-	
-	$package_details->header->get_header( 'url' );
-	
-The header names in the Perl code are in a different format than they
-are in the file. See C<default_headers> for an explanation of the
-difference.
-
-For most headers, you can also use the header name as the method name:
-	
-	$package_details->header->url;
-
-=cut
-
-sub get_header 
-	{
-	my( $self, $field ) = @_;
-	
-	if( $self->header_exists( $field ) ) { $self->{$field} }
-	else { carp "No such header as $field!"; return }
-	}
-
-=item columns_as_list
-
-Returns the columns name as a list (rather than a comma-joined string). The
-list is in the order of the columns in the output.
-
-=cut
-
-sub columns_as_list { split /,\s+/, $_[0]->{columns} }
-
-sub _entries { $_[0]->{_entries} }
-
-=item as_string
-
-Return the header formatted as a string.
-
-=cut
-
-BEGIN {
-my %internal_field_name_mapping = (
-	url => 'URL',
-	);
-	
-my %external_field_name_mapping = reverse %internal_field_name_mapping;
-
-sub _internal_name_to_external_name
-	{
-	my( $self, $internal ) = @_;
-	
-	return $internal_field_name_mapping{$internal} 
-		if exists $internal_field_name_mapping{$internal};
-		
-	(my $external = $internal) =~ s/_/-/g;
-	$external =~ s/^(.)/ uc $1 /eg;
-	$external =~ s/-(.)/ "-" . uc $1 /eg;
-		
-	return $external;
-	}
-	
-sub _external_name_to_internal_name
-	{
-	my( $self, $external ) = @_;
-
-	return $external_field_name_mapping{$external} 
-		if exists $external_field_name_mapping{$external};
-	
-	(my $internal = $external) =~ s/-/_/g;
-
-	lc $internal;
-	}
-	
-sub as_string
-	{
-	my( $self, $line_count ) = @_;
-	
-	# XXX: need entry count
-	my @lines;
-	foreach my $field ( keys %$self )
-		{
-		next if substr( $field, 0, 1 ) eq '_';
-		my $value = $self->get_header( $field );
-		
-		my $out_field = $self->_internal_name_to_external_name( $field );
-		
-		push @lines, "$out_field: $value";
-		}
-		
-	push @lines, "Line-Count: " . $self->_entries->as_unique_sorted_list;
-	
-	join "\n", sort( @lines ), "\n";
-	}
-}
-
-}
 
 =back
 	
@@ -816,278 +611,6 @@ Returns the entries object.
 
 sub entries { $_[0]->{entries} }
 
-=back
-
-=head3 Methods in CPAN::PackageDetails::Entries
-
-=over 4
-
-=cut
-
-{
-package CPAN::PackageDetails::Entries;
-use Carp;
-
-sub DESTROY { }
-
-=item new
-
-Creates a new Entries object. This doesn't do anything fancy. To add
-to it, use C<add_entry>.
-
-	entry_class => the class to use for each entry object
-	columns     => the column names, in order that you want them in the output
-
-If you specify the C<allow_packages_only_once> option with a true value
-and you try to add that package twice, the object will die. See C<add_entry>.
-
-=cut
-
-sub new { 
-	my( $class, %args ) = @_;
-	
-	my %hash = ( 
-		entry_class              => 'CPAN::PackageDetails::Entry',
-		allow_packages_only_once => 1,
-		columns                  => [],
-		entries                  => {},
-		%args
-		);
-		
-	$hash{max_widths} = [ (0) x @{ $hash{columns} } ];
-	
-	bless \%hash, $_[0] 
-	}
-
-=item entry_class
-
-Returns the class that Entries uses to make a new Entry object.
-
-=cut
-
-sub entry_class { $_[0]->{entry_class} }
-
-=item columns
-
-Returns a list of the column names in the entry
-
-=cut
-
-sub columns { @{ $_[0]->{columns} } };
-
-=item column_index_for( COLUMN )
-
-Returns the list position of the named COLUMN.
-
-=cut
-
-sub column_index_for
-	{
-	my( $self, $column ) = @_;
-	
-	
-	my $index = grep {  
-		$self->{columns}[$_] eq $column
-		} 0 .. @{ $self->columns };
-		
-	return unless defined $index;
-	return $index;
-	}
-	
-=item count
-
-Returns the number of entries. This is not the same as the number of
-lines that would show up in the F<02packages.details.txt> file since
-this method counts duplicates as well. 
-
-=cut
-
-sub count 
-	{ 
-	my $self = shift;
-	
-	my $count = 0;
-	foreach my $package ( keys %{ $self->{entries} } )
-		{
-		$count += keys %{ $self->{entries}{$package} };
-		}
-		
-	return $count;
-	}
-
-=item entries
-
-Returns the list of entries as an array reference.
-
-=cut
-
-sub entries { $_[0]->{entries} }
-
-=item allow_packages_only_once( [ARG] )
-
-=cut
-
-sub allow_packages_only_once
-	{	
-	$_[0]->{allow_packages_only_once} = $_[1] if defined $_[1];
-	
-	$_[0]->{allow_packages_only_once};
-	}
-	
-=item add_entry
-
-Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
-object and it will take care of finding the right handler.
-
-If you've set C<allow_packages_only_once> to a true value (which is the
-default, too), C<add_entry> will die if you try to add another entry with
-the same package name even if it has a different or greater version. You can
-set this to a false value and add as many entries as you like then use
-C<as_unqiue_sorted_list> to get just the entries with the highest 
-versions for each package.
-
-=cut
-
-sub add_entry
-	{
-	my( $self, %args ) = @_;
-
-	$self->_mark_as_dirty;
-	
-	# The column name has a space in it, but that looks weird in a 
-	# hash constructor and I keep doing it wrong. If I type "package_name"
-	# I'll just make it work.
-	if( exists $args{package_name} )
-		{
-		$args{'package name'} = $args{package_name};
-		delete $args{package_name};
-		}
-	
-	$args{'version'} = 'undef' unless defined $args{'version'};
-	
-	unless( defined $args{'package name'} )
-		{
-		carp "No 'package name' parameter!";
-		return;
-		}
-		
-	if( $self->allow_packages_only_once and $self->already_added( $args{'package name'} ) )
-		{
-		croak "$args{'package name'} was already added to CPAN::PackageDetails!";
-		return;
-		}
-	
-	# should check for allowed columns here
-	$self->{entries}{
-		$args{'package name'}
-		}{$args{'version'}
-			} = $self->entry_class->new( %args );
-	}
-
-sub _mark_as_dirty
-	{
-	delete $_[0]->{sorted};
-	}
-
-=item already_added( PACKAGE )
-
-Returns true if there is already an entry for PACKAGE.
-
-=cut
-
-sub already_added { exists $_[0]->{entries}{$_[1]} }
-
-=item as_string
-
-Returns a text version of the Entries object. This calls C<as_string>
-on each Entry object, and concatenates the results for all Entry objects.
-
-=cut
-
-sub as_string
-	{
-	my( $self ) = @_;
-	
-	my $string;
-	
-	my( $return ) = $self->as_unique_sorted_list;
-	
-	foreach my $entry ( @$return )
-		{
-		$string .= $entry->as_string( $self->columns );
-		}
-	
-	$string || '';
-	}
-
-=item as_unique_sorted_list
-
-In list context, this returns a list of entries sorted by package name
-and version. Each package exists exactly once in the list and with the
-largest version number seen.
-
-In scalar context this returns the count of the number of unique entries.
-
-Once called, it caches its result until you add more entries.
-
-=cut
-
-sub as_unique_sorted_list
-	{
-	my( $self ) = @_;
-
-	
-	unless( ref $self->{sorted} eq ref [] )
-		{
-		$self->{sorted} = [];
-		
-		my %Seen;
-
-		my( $k1, $k2 ) = ( $self->columns )[0,1];
-
-		my $e = $self->entries;
-		
-	# We only want the latest versions of everything:
-		foreach my $package ( sort keys %$e )
-			{
-			my( $highest_version ) = 
-				sort { $e->{$package}{$b} <=> $e->{$package}{$b} }
-				keys %{ $e->{$package} };
-			
-			push @{ $self->{sorted} }, $e->{$package}{$highest_version};
-			}
-		}
-	
-	my $return = wantarray ? 
-		$self->{sorted} 
-			:
-		scalar  @{ $self->{sorted} };
-	
-	return $return;
-	}
-
-}
-	
-=back
-
-=head2 Entry
-
-An entry is a single line from F<02packages.details.txt> that maps a
-package name to a source. It's a whitespace-separated list that
-has the values for the column identified in the "columns" field
-in the header.
-
-By default, there are three columns: package name, version, and path.
-
-Inside a CPAN::PackageDetails object, the actual work and 
-manipulation of the entries are handled by delegate classes specified
-in C<entries_class> and C<entry_class>). At the moment these are
-immutable, so you'd have to subclass this module to change them.
-
-=head3 Methods is CPAN::PackageDetails
-
-=over 4
-
 =item entry_class
 
 Returns the class to use for each Entry object.
@@ -1106,67 +629,8 @@ Note that you are responsible for loading the right class yourself.
 
 sub entry_class { $_[0]->{entry_class} }
 
-=back
+sub _entries { $_[0]->{_entries} }
 
-=head3 Methods in CPAN::PackageDetails::Entry
-
-=over 4
-
-=cut
-
-{
-package CPAN::PackageDetails::Entry;	
-use Carp;
-
-=item new( FIELD1 => VALUE1 [, FIELD2 => VALUE2] )
-
-Create a new entry
-
-=cut
-
-sub new
-	{
-	my( $class, %args ) = @_;
-	
-	bless { %args }, $class
-	}
-
-=item path
-
-=item version
-
-=item package_name
-
-Access values of the entry.
-
-=cut
-
-sub path         { $_[0]->{path} }
-sub version      { $_[0]->{version} }
-sub package_name { $_[0]->{'package name'} }
-	
-=item as_string( @column_names )
-
-Formats the Entry as text. It joins with whitespace the values for the 
-column names you pass it. You get the newline automatically.
-
-Any values that are not defined (or the empty string) turn into the
-literal string 'undef' to preserve the columns in the output.
-
-=cut
-
-sub as_string
-	{
-	my( $self, @columns ) = @_;
-	
-	# can't check defined() because that let's the empty string through
-	return join( "\t", 
-		map { length $self->{$_} ? $self->{$_} : 'undef' } @columns 
-		) . "\n";
-	}	
-
-}
-	
 =back
 
 =head1 TO DO

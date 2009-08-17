@@ -1,5 +1,9 @@
 use Test::More 'no_plan';
 
+use Carp;
+
+$SIG{__DIE__} = \&Carp::confess;
+
 use Test::Output;
 
 my $class  = 'CPAN::PackageDetails';

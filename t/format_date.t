@@ -2,7 +2,7 @@
 
 use Test::More tests => 4;
 
-my $class  = 'CPAN::PackageDetails';
+my $class  = 'CPAN::PackageDetails::Header';
 my $method = 'format_date';
 
 use_ok( $class ) or BAIL_OUT( "$class did not load" );

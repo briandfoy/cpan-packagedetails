@@ -1,5 +1,9 @@
 BEGIN {
-	@classes = qw(CPAN::PackageDetails);
+	@classes = qw(
+		CPAN::PackageDetails::Header
+		CPAN::PackageDetails::Entries
+		CPAN::PackageDetails::Entry
+		);
 	}
 
 use Test::More tests => scalar @classes;

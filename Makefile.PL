@@ -20,6 +20,9 @@ WriteMakefile(
 
 	'PM'           => {
 		'lib/PackageDetails.pm' => '$(INST_LIBDIR)/PackageDetails.pm',
+		'lib/Header.pm'         => '$(INST_LIBDIR)/PackageDetails/Header.pm',
+		'lib/Entries.pm'        => '$(INST_LIBDIR)/PackageDetails/Entries.pm',
+		'lib/Entry.pm'          => '$(INST_LIBDIR)/PackageDetails/Entry.pm',
 		},
 
 	clean  => { FILES    => q|CPAN-PackageDetails-* t/test_output| },
