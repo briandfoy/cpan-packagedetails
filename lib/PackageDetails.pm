@@ -6,10 +6,11 @@ use subs qw();
 use vars qw($VERSION);
 
 use Carp qw(carp croak cluck confess);
+use File::Basename;
 use File::Spec::Functions;
 
 BEGIN {
-	$VERSION = '0.21_05';
+	$VERSION = '0.21_06';
 	}
 
 =head1 NAME
@@ -497,8 +498,8 @@ sub _filter_older_dists
 	
 	foreach my $path ( @$array )
 		{
-		my $distname = CPAN::DistnameInfo->new($path);
-		my( $name, $version ) = map { $distname->$_ } qw(dist version);
+		my( $basename, $directory, $suffix ) = fileparse( $path, qw(.tar.gz .tgz .zip .tar.bz2) );
+		my( $name, $version, $developer ) = CPAN::DistnameInfo::distname_info( $basename );
 		my $tuple = [ $path, $name, $version ];
 		push @order, $name;
 		
