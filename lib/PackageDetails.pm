@@ -390,8 +390,19 @@ sub write_fh
 	print $fh $self->header->as_string, $self->entries->as_string;
 	}
 	
-=item check_file
+=item check_file( FILE, CPAN_PATH )
 
+This method takes an existing 02packages.details.txt.gz named in FILE and
+the the CPAN root at CPAN_PATH (to append to the relative paths in the
+index), then checks the file for several 
+
+	1. That there are entries in the file
+	2. The number of entries matches those declared in the Line-Count header
+	3. All paths listed in the file exist under CPAN_PATH
+	4. All distributions under CPAN_PATH have an entry (not counting older versions)
+
+If any of these checks fail, C<check_file> croaks. If all of these checks pass,
+check_file returns 1.
 
 =cut
 
@@ -500,6 +511,7 @@ sub _filter_older_dists
 		{
 		my( $basename, $directory, $suffix ) = fileparse( $path, qw(.tar.gz .tgz .zip .tar.bz2) );
 		my( $name, $version, $developer ) = CPAN::DistnameInfo::distname_info( $basename );
+		print STDERR "Version is $version\n";
 		my $tuple = [ $path, $name, $version ];
 		push @order, $name;
 		
@@ -526,7 +538,91 @@ sub _filter_older_dists
 	
 	return 1;
 	}
+
+
+sub _distname_info 
+	{
+	my $file = shift or return;
 	
+	my ($dist, $version) = $file =~ /^
+		(                          # start of dist name
+			(?:
+				[-+.]*
+
+				(?:
+					[A-Za-z0-9]+
+						|
+					(?<=\D)_
+						|
+					_(?=\D)
+				)*
+	 			
+	 			(?:
+					[A-Za-z]
+					(?=
+						[^A-Za-z]
+						|
+						$
+					)
+						|
+					\d
+					(?=-)
+	 			)
+	 			
+	 			(?<!
+	 				[._-][vV]
+	 			)
+			)+
+		)                          # end of dist name
+
+		(                          # start of version
+		.*
+		)                          # end of version
+	$/xs or return ($file, undef, undef );
+
+	$dist =~ s/-undef\z// if ($dist =~ /-undef\z/ and ! length $version);
+
+	# Catch names like Unicode-Collate-Standard-V3_1_1-0.1
+	# where the V3_1_1 is part of the distname
+	if ($version =~ /^(-[Vv].*)-(\d.*)/) {
+		$dist    .= $1;
+		$version  = $2;
+		}
+
+	$version = $1            if !length $version and $dist =~ s/-(\d+\w)$//;
+
+	$version = $1 . $version if $version =~ /^\d+$/ and $dist =~ s/-(\w+)$//;
+
+	if( $version =~ /\d\.\d/ ) { $version =~ s/^[-_.]+// }
+	else                       { $version =~ s/^[-_]+//  }
+
+	# deal with versions with extra information
+	$version =~ s/-build\d+.*//;
+	$version =~ s/-DRW.*//;
+	
+	# deal with perl versions, merely to see if it is a dev version
+	my $dev;
+	if( length $version ) 
+		{
+		$dev = do {
+			if ($file =~ /^perl-?\d+\.(\d+)(?:\D(\d+))?(-(?:TRIAL|RC)\d+)?$/) 
+				{
+				 1 if (($1 > 6 and $1 & 1) or ($2 and $2 >= 50)) or $3;
+				}
+			elsif ($version =~ /\d\D\d+_\d/) 
+				{
+				1;
+				}
+			};
+		}
+	else 
+		{
+		$version = undef;
+		}
+
+	($dist, $version, $dev);
+	}
+
 sub _get_repo_dists
 	{	
 	my( $self, $cpan_home ) = @_;

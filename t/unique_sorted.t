@@ -24,6 +24,9 @@ is( $package_details->allow_packages_only_once, 0, "allow_packages_only_once is 
 
 can_ok( $package_details->entries, $method );
 
+
+# dpan/authors/id/D/DR/DRW/DRW-Constants-v1.15.175254.build-0158.tar.gz
+# dpan/authors/id/D/DR/DRW/DRW-Constants-v1.15.175254.build-0159.tar.gz
 my @entries_to_add = (
 	[ 'Foo::Bar', '1.01',    '/a/b/c/Foo-1.01.tgz'],
 	[ 'Foo::Bar', '1.02',    '/a/b/c/Foo-1.02.tgz'],
