@@ -455,9 +455,9 @@ sub check_file
 			
 			push @missing, $path unless -e $native_path;
 			}
-			
+		
 		croak( 
-			"Some paths in $file do not show up under $cpan_path\n" .
+			"Some paths in $file do not show up under $cpan_path\n\t" .
 			join( "\n\t", @missing ) . "\n" 
 			)
 			if @missing;
@@ -475,20 +475,19 @@ sub check_file
 		$class->_filter_older_dists( $dists );
 		
 		my %files = map { $_, 1 } @$dists;
+		use Data::Dumper;
 		
 		my( $entries ) = $packages->as_unique_sorted_list;
 
 		foreach my $entry ( @$entries )
 			{
 			my $path = $entry->path;
-			
-			my $native_path = catfile( $cpan_path, split m|/|, $path );
-			
+			my $native_path = catfile( $cpan_path, split m|/|, $path );			
 			delete $files{$native_path};
 			}
 
 		croak( 
-			"Some paths in $cpan_path do not show up in $file\n" .
+			"Some paths in $cpan_path do not show up in $file\n\t" .
 			join( "\n\t", keys %files ) . "\n" 
 			)
 			if keys %files;
