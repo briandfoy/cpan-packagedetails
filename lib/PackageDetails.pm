@@ -510,7 +510,6 @@ sub _filter_older_dists
 		{
 		my( $basename, $directory, $suffix ) = fileparse( $path, qw(.tar.gz .tgz .zip .tar.bz2) );
 		my( $name, $version, $developer ) = CPAN::DistnameInfo::distname_info( $basename );
-		print STDERR "Version is $version\n";
 		my $tuple = [ $path, $name, $version ];
 		push @order, $name;
 		
