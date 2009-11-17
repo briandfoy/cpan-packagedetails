@@ -2,6 +2,8 @@ Changes
 corpus/bad/incomplete.txt.gz
 corpus/bad/missing_distro.txt.gz
 corpus/bad/no_entries.txt.gz
+corpus/cpan/L/LO/LOCAL/Local-Bar-1.23-build-159.tar.gz
+corpus/cpan/L/LO/LOCAL/Local-Bar-1.23-build-160.tar.gz
 corpus/cpan/L/LO/LOCAL/Local-Bar-4.56.tar.gz
 corpus/cpan/L/LO/LOCAL/Local-Foo-1.23.tar.gz
 corpus/good/no_tricks.txt.gz
