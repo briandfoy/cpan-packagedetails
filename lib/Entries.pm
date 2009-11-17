@@ -256,6 +256,7 @@ sub as_unique_sorted_list
 					error           => VERSION_PM,
 					} 
 				);
+				
 			my( $highest_version ) =
 				sort { version->parse($b) <=> version->parse($a) }
 				keys %$entries;
