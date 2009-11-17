@@ -1,5 +1,10 @@
 Changes for CPAN::PackageDetails
 
+0.21_07 - Tue Nov 17 03:03:56 2009
+	* Fix the version sorting in as_unique_sorted_list. 
+	I'm using version.pm against my better judgement,
+	and that's all messed up with Module::Build.
+
 0.21_02 - Sun Aug 16 20:03:44 CDT 2009
 	* add the check_file() routine to compare a 02packages to a
 	repo to see if it matches: all file in the repo in 02packages,
