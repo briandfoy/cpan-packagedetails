@@ -229,7 +229,6 @@ sub as_unique_sorted_list
 	{
 	my( $self ) = @_;
 
-	
 	unless( ref $self->{sorted} eq ref [] )
 		{
 		$self->{sorted} = [];
@@ -243,11 +242,13 @@ sub as_unique_sorted_list
 	# We only want the latest versions of everything:
 		foreach my $package ( sort keys %$e )
 			{
-			my( $highest_version ) = 
-				sort { $e->{$package}{$b} <=> $e->{$package}{$b} }
-				keys %{ $e->{$package} };
-			
-			push @{ $self->{sorted} }, $e->{$package}{$highest_version};
+			my $entries = $e->{$package};
+			require version;
+			my( $highest_version ) =
+				sort { version->parse($b) <=> version->parse($a) }
+				keys %$entries;
+
+			push @{ $self->{sorted} }, $entries->{$highest_version};
 			}
 		}
 	

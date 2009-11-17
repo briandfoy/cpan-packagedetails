@@ -484,6 +484,7 @@ sub check_file
 				
 			croak( $error );		
 			}			
+
 		}
 
 	# all repo distributions are listed # # # # # # # # # # # # # # # # # # #
@@ -505,18 +506,16 @@ sub check_file
 		$class->_filter_older_dists( $dists );
 		
 		my %files = map { $_, 1 } @$dists;
+		use Data::Dumper;
 		
 		my( $entries ) = $packages->as_unique_sorted_list;
 
 		foreach my $entry ( @$entries )
 			{
 			my $path = $entry->path;
-			
-			my $native_path = catfile( $cpan_path, split m|/|, $path );
-			
+			my $native_path = catfile( $cpan_path, split m|/|, $path );			
 			delete $files{$native_path};
 			}
-
 
 		if( keys %files )
 			{
@@ -527,8 +526,7 @@ sub check_file
 				};
 				
 			croak( $error );		
-			}			
-		
+			}		
 		}
 		
 	return 1;
