@@ -406,6 +406,10 @@ check_file returns 1.
 
 =cut
 
+sub ENTRY_COUNT_MISMATCH () { 1 }
+sub MISSING_IN_REPO      () { 2 }
+sub MISSING_IN_FILE      () { 3 }
+
 sub check_file
 	{
 	my( $either, $file, $cpan_path ) = @_;
@@ -435,15 +439,29 @@ sub check_file
 	# count of lines matches # # # # # # # # # # # # # # # # # # #
 	my $entries_count = $packages->count;
 
-	croak( "Entry count mismatch? " .
-		"The header says $header_count but there are only $entries_count records\n" )
-		unless $header_count == $entries_count;
+	unless( $header_count == $entries_count )
+		{
+		my $error = {
+			message => "Entry count mismatch? The header says $header_count but there are only $entries_count records",
+			error   => ENTRY_COUNT_MISMATCH,
+			};
+			
+		croak( $error );		
+		}
 
 	# all listed distributions are in repo # # # # # # # # # # # # # # # # # # #
 	my @missing;
 	if( defined $cpan_path )
 		{
-		croak( "CPAN path [$cpan_path] does not exist!\n" ) unless -e $cpan_path;
+		unless( -e $cpan_path )
+			{
+			my $error = {
+				message => "CPAN path [$cpan_path] does not exist!",
+				error   => 1,
+				};
+				
+			croak( $error );		
+			}
 		
 		# this entries syntax really sucks
 		my( $entries ) = $packages->as_unique_sorted_list;
@@ -456,19 +474,31 @@ sub check_file
 			push @missing, $path unless -e $native_path;
 			}
 			
-		croak( 
-			"Some paths in $file do not show up under $cpan_path\n" .
-			join( "\n\t", @missing ) . "\n" 
-			)
-			if @missing;
-			
+		if( @missing )
+			{
+			my $error = {
+				message         => "Some paths in $file do not show up under $cpan_path",
+				missing_in_repo => \@missing,
+				error           => MISSING_IN_REPO,
+				};
+				
+			croak( $error );		
+			}			
 		}
 
 	# all repo distributions are listed # # # # # # # # # # # # # # # # # # #
 	# the trick here is to not care about older versions
 	if( defined $cpan_path )
 		{
-		croak( "CPAN path [$cpan_path] does not exist!\n" ) unless -e $cpan_path;
+		unless( -e $cpan_path )
+			{
+			my $error = {
+				message => "CPAN path [$cpan_path] does not exist!",
+				error   => 1,
+				};
+				
+			croak( $error );		
+			}
 			
 		my $dists = $class->_get_repo_dists( $cpan_path );
 		
@@ -487,11 +517,17 @@ sub check_file
 			delete $files{$native_path};
 			}
 
-		croak( 
-			"Some paths in $cpan_path do not show up in $file\n" .
-			join( "\n\t", keys %files ) . "\n" 
-			)
-			if keys %files;
+
+		if( keys %files )
+			{
+			my $error = {
+				message         => "Some paths in $cpan_path do not show up under $file",
+				missing_in_file => [ keys %files ],
+				error           => MISSING_IN_FILE,
+				};
+				
+			croak( $error );		
+			}			
 		
 		}
 		
@@ -511,14 +547,13 @@ sub _filter_older_dists
 		{
 		my( $basename, $directory, $suffix ) = fileparse( $path, qw(.tar.gz .tgz .zip .tar.bz2) );
 		my( $name, $version, $developer ) = CPAN::DistnameInfo::distname_info( $basename );
-		print STDERR "Version is $version\n";
 		my $tuple = [ $path, $name, $version ];
 		push @order, $name;
 		
 		   # first branch, haven't seen the distro yet
 		   if( ! exists $Seen{ $name } )       { $Seen{ $name } = $tuple }
 		   # second branch, the version we see now is greater than before
-		elsif( $Seen{ $name }[2] < $version )  { $Seen{ $name } = $tuple }
+		elsif( $Seen{ $name }[2] lt $version )  { $Seen{ $name } = $tuple }
 		   # third branch, nothing. Really? Are you sure there's not another case?
 		else                                   { () }
 		}
