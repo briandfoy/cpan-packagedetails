@@ -239,7 +239,7 @@ sub as_unique_sorted_list
 		my( $k1, $k2 ) = ( $self->columns )[0,1];
 
 		my $e = $self->entries;
-		
+
 		# We only want the latest versions of everything:
 		foreach my $package ( sort keys %$e )
 			{
