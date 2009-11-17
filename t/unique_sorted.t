@@ -1,4 +1,4 @@
-use Test::More 'no_plan';
+use Test::More tests => 19;
 use strict;
 use warnings;
 
@@ -28,10 +28,12 @@ can_ok( $package_details->entries, $method );
 # dpan/authors/id/D/DR/DRW/DRW-Constants-v1.15.175254.build-0158.tar.gz
 # dpan/authors/id/D/DR/DRW/DRW-Constants-v1.15.175254.build-0159.tar.gz
 my @entries_to_add = (
-	[ 'Foo::Bar', '1.01',    '/a/b/c/Foo-1.01.tgz'],
-	[ 'Foo::Bar', '1.02',    '/a/b/c/Foo-1.02.tgz'],
+	[ 'Foo::Bar', '1.03',    '/a/b/c/Foo-1.01.tgz'       ],
+	[ 'Foo::Bar', '1.01',    '/a/b/c/Foo-1.01.tgz'       ],
+	[ 'Foo::Bar', '1.02',    '/a/b/c/Foo-1.02.tgz'       ],
+	[ 'Foo::Baz', '1.02',    '/a/b/c/Foo-Baz-1.02.tgz'   ],	
 	[ 'Foo::Baz', '1.02_01', '/a/b/c/Foo-Baz-1.02_01.tgz'],	
-	[ 'Quux',     '2800',    '/a/b/c/Quux-2800.tgz'],	
+	[ 'Quux',     '2800',    '/a/b/c/Quux-2800.tgz'      ],	
 	);
 	
 foreach my $tuple ( @entries_to_add )
@@ -54,9 +56,10 @@ is( scalar $package_details->$method, 3,
 my( $list )= $package_details->$method;
 
 is( $list->[0]{'package name'}, 'Foo::Bar', "Foo::Bar is the first one in the list" );
-is( $list->[0]{version}, '1.02',     "Foo::Bar has latest version" );
+is( $list->[0]{version}, '1.03',     "Foo::Bar has latest version" );
 
 is( $list->[1]{'package name'}, 'Foo::Baz', "Foo::Baz is the second one in the list" );
+is( $list->[1]{version}, '1.02_01',     "Foo::Baz has latest version" );
 
 is( $list->[-1]{'package name'}, 'Quux', "Quux is the last one in the list" );
 

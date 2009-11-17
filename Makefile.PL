@@ -6,7 +6,7 @@ eval "use Test::Manifest 1.23";
 
 WriteMakefile(
 	'NAME'	       => 'CPAN::PackageDetails',
-	'ABSTRACT'     => 'Create or read 02packages.details.txt.gz',
+	'ABSTRACT'     => "Create or read PAUSE's 02packages.details.txt.gz",
 	'VERSION_FROM' => 'lib/PackageDetails.pm',
 	'LICENSE'      => 'perl',
 	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
@@ -17,6 +17,7 @@ WriteMakefile(
 		'Test::Output'           => '0.10',
 		'IO::Compress::Gzip'     => '0',
 		'IO::Uncompress::Gunzip' => '0',
+		'version'                => '0.74',
 		},
 
 	'PM'           => {
