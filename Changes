@@ -1,5 +1,10 @@
 Changes for CPAN::PackageDetails
 
+0.22 - Wed Nov 18 19:21:56 2009
+	* check_file() now dies with a reference if it encounters 
+	a problem so you have greater control over error
+	handling.
+
 0.21_07 - Tue Nov 17 03:03:56 2009
 	* Fix the version sorting in as_unique_sorted_list. 
 	I'm using version.pm against my better judgement,
