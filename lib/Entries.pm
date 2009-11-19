@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.21_07';
+$VERSION = '0.22';
 
 use Carp;
 
@@ -11,7 +11,7 @@ sub DESTROY { }
 
 =head1 NAME
 
-CPAN::PackageDetails::Entries - Handle the collections of records of 02packages.details.txt.gz
+CPAN::PackageDetails::Entries - Handle the collection of records of 02packages.details.txt.gz
 
 =head1 SYNOPSIS
 
