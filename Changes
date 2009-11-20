@@ -1,5 +1,9 @@
 Changes for CPAN::PackageDetails
 
+0.24 - Fri Nov 20 05:52:50 2009
+	* I got the check_file tests named backward. Now they are
+	right side up.
+
 0.23 - Thu Nov 19 22:04:35 2009
 	* Re-jiggered the error reporting from check_file. Now
 	you get back a reference that gives you a lot more 
