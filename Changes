@@ -1,5 +1,11 @@
 Changes for CPAN::PackageDetails
 
+0.23 - Thu Nov 19 22:04:35 2009
+	* Re-jiggered the error reporting from check_file. Now
+	you get back a reference that gives you a lot more 
+	information. You should call check_file in an eval
+	then look for the error object in $@.
+
 0.22 - Wed Nov 18 19:21:56 2009
 	* check_file() now dies with a reference if it encounters 
 	a problem so you have greater control over error
