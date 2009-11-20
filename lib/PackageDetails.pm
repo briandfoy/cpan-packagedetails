@@ -501,6 +501,13 @@ sub check_file
 
 =item check_for_missing_dists_in_file( CPAN_PATH )
 
+Given an object and a CPAN_PATH, return an anonymous array of the 
+distributions in CPAN_PATH that do not show up in the object. That is,
+complain when the object doesn't have all the dists.
+
+C<check_file> calls this for you and adds the result to its
+error output.
+
 =cut
 
 sub check_for_missing_dists_in_file
@@ -522,6 +529,13 @@ sub check_for_missing_dists_in_file
 	}
 
 =item check_for_missing_dists_in_repo( CPAN_PATH )
+
+Given an object and a CPAN_PATH, return an anonymous array of the 
+distributions in the object that are not in CPAN_PATH. That is,
+complain when the object has extra distributions.
+
+C<check_file> calls this for you and adds the result to its
+error output.
 
 =cut
 
