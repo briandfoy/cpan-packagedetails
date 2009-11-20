@@ -6,11 +6,12 @@ use subs qw();
 use vars qw($VERSION);
 
 use Carp qw(carp croak cluck confess);
+use Cwd;
 use File::Basename;
 use File::Spec::Functions;
 
 BEGIN {
-	$VERSION = '0.22';
+	$VERSION = '0.23';
 	}
 
 =head1 NAME
@@ -392,17 +393,38 @@ sub write_fh
 	
 =item check_file( FILE, CPAN_PATH )
 
-This method takes an existing 02packages.details.txt.gz named in FILE and
+This method takes an existing F<02packages.details.txt.gz> named in FILE and
 the the CPAN root at CPAN_PATH (to append to the relative paths in the
-index), then checks the file for several 
+index), then checks the file for several things:
 
 	1. That there are entries in the file
 	2. The number of entries matches those declared in the Line-Count header
 	3. All paths listed in the file exist under CPAN_PATH
 	4. All distributions under CPAN_PATH have an entry (not counting older versions)
 
-If any of these checks fail, C<check_file> croaks. If all of these checks pass,
-check_file returns 1.
+If any of these checks fail, C<check_file> croaks with a hash reference
+with these keys:
+
+	# present in every error object
+	filename                the FILE you passed in
+	cpan_path               the CPAN_PATH you passed in
+	cwd                     the current working directory
+	error_count             
+
+	# if FILE is missing
+	missing_file          exists and true if FILE doesn't exist
+
+	# if the entry count in the file is wrong
+	# that is, the actual line count and header disagree
+	entry_count_mismatch    true 
+	line_count              the line count declared in the header   
+	entry_count             the actual count
+
+	# if some distros in CPAN_HOME are missing in FILE		
+	missing_in_file         anonymous array of missing paths
+	
+	# if some entries in FILE are missing the file in CPAN_HOME
+	missing_in_repo         anonymous array of missing paths
 
 =cut
 
@@ -424,123 +446,115 @@ sub check_file
 	my $class = ref $either || $either;
 	
 	# file exists
-	croak( "File [$file] does not exist!\n" ) unless -e $file;
-
+	my $error = { 
+		error_count => 0, 
+		cpan_path   => $cpan_path, 
+		filename    => $file,
+		cwd         => cwd(),
+		};
+	unless( -e $file )
+		{
+		$error->{missing_file}         = 1;
+		$error->{error_count}         +=  1;
+		}
+		
 	# file is gzipped
 
 	# check header # # # # # # # # # # # # # # # # # # #
 	my $packages = $class->read( $file );
 	
 	# count of entries in non-zero # # # # # # # # # # # # # # # # # # #
+
 	my $header_count = $packages->get_header( 'line_count' );
-	croak( "The header says there are no entries!\n" ) 
-		if $header_count == 0;
-		
-	# count of lines matches # # # # # # # # # # # # # # # # # # #
 	my $entries_count = $packages->count;
+	
+	unless( $header_count )
+		{
+		$error->{entry_count_mismatch} = 1;
+		$error->{line_count}           = $header_count;
+		$error->{entry_count}          = $entries_count;
+		$error->{error_count}         +=  1;
+		}
 
 	unless( $header_count == $entries_count )
 		{
-		my $error = {
-			message => "Entry count mismatch? The header says $header_count but there are only $entries_count records",
-			error   => ENTRY_COUNT_MISMATCH,
-			};
-			
-		croak( $error );		
+		$error->{entry_count_mismatch} = 1;
+		$error->{line_count}           = $header_count;
+		$error->{entry_count}          = $entries_count;
+		$error->{error_count}         +=  1;
 		}
 
-	# all listed distributions are in repo # # # # # # # # # # # # # # # # # # #
-	my @missing;
-	if( defined $cpan_path )
+	if( $cpan_path )
 		{
-		unless( -e $cpan_path )
-			{
-			my $error = {
-				message => "CPAN path [$cpan_path] does not exist!",
-				error   => 1,
-				};
-				
-			croak( $error );		
-			}
+		my $missing_in_file = $packages->check_for_missing_dists_in_file( $cpan_path );
+		my $missing_in_repo = $packages->check_for_missing_dists_in_repo( $cpan_path );
 		
-		# this entries syntax really sucks
-		my( $entries ) = $packages->as_unique_sorted_list;
-		foreach my $entry ( @$entries )
-			{
-			my $path = $entry->path;
-			
-			my $native_path = catfile( $cpan_path, split m|/|, $path );
-			
-			push @missing, $path unless -e $native_path;
-			}
-			
-		if( @missing )
-			{
-			my $error = {
-				message         => "Some paths in $file do not show up under $cpan_path",
-				missing_in_repo => \@missing,
-				error           => MISSING_IN_REPO,
-				};
-				
-			croak( $error );		
-			}			
-
+		$error->{missing_in_file}  =  $missing_in_file if @$missing_in_file;
+		$error->{missing_in_repo}  =  $missing_in_repo if @$missing_in_repo;
+		$error->{error_count}     += @$missing_in_file  + @$missing_in_repo;
 		}
 
-	# all repo distributions are listed # # # # # # # # # # # # # # # # # # #
-	# the trick here is to not care about older versions
-	if( defined $cpan_path )
-		{
-		unless( -e $cpan_path )
-			{
-			my $error = {
-				message => "CPAN path [$cpan_path] does not exist!",
-				error   => 1,
-				};
-				
-			croak( $error );		
-			}
-			
-		my $dists = $class->_get_repo_dists( $cpan_path );
-		
-		$class->_filter_older_dists( $dists );
-		
-		my %files = map { $_, 1 } @$dists;
-		use Data::Dumper;
-		
-		my( $entries ) = $packages->as_unique_sorted_list;
-
-		foreach my $entry ( @$entries )
-			{
-			my $path = $entry->path;
-			my $native_path = catfile( $cpan_path, split m|/|, $path );			
-			delete $files{$native_path};
-			}
-
-		if( keys %files )
-			{
-			my $error = {
-				message         => "Some paths in $cpan_path do not show up under $file",
-				missing_in_file => [ keys %files ],
-				error           => MISSING_IN_FILE,
-				};
-				
-			croak( $error );		
-			}		
-		}
-		
+	croak $error if $error->{error_count};
+	
 	return 1;
+	}
+
+=item check_for_missing_dists_in_file( CPAN_PATH )
+
+=cut
+
+sub check_for_missing_dists_in_file
+	{
+	my( $packages, $cpan_path ) = @_;
+
+	my @missing;
+	my( $entries ) = $packages->as_unique_sorted_list;
+	foreach my $entry ( @$entries )
+		{
+		my $path = $entry->path;
+		
+		my $native_path = catfile( $cpan_path, split m|/|, $path );
+		
+		push @missing, $path unless -e $native_path;
+		}
+		
+	return \@missing;
+	}
+
+=item check_for_missing_dists_in_repo( CPAN_PATH )
+
+=cut
+
+sub check_for_missing_dists_in_repo
+	{
+	my( $packages, $cpan_path ) = @_;
+	
+	my $dists = $packages->_get_repo_dists( $cpan_path );
+	
+	$packages->_filter_older_dists( $dists );
+	
+	my %files = map { $_, 1 } @$dists;
+	use Data::Dumper;
+	
+	my( $entries ) = $packages->as_unique_sorted_list;
+
+	foreach my $entry ( @$entries )
+		{
+		my $path = $entry->path;
+		my $native_path = catfile( $cpan_path, split m|/|, $path );			
+		delete $files{$native_path};
+		}
+	
+	[ keys %files ];
 	}
 
 sub _filter_older_dists
 	{
 	my( $self, $array ) = @_;
-
-	require CPAN::DistnameInfo;
 	
 	my %Seen;
 	my @order;
-	
+	require  CPAN::DistnameInfo;
 	foreach my $path ( @$array )
 		{
 		my( $basename, $directory, $suffix ) = fileparse( $path, qw(.tar.gz .tgz .zip .tar.bz2) );
@@ -549,7 +563,7 @@ sub _filter_older_dists
 		push @order, $name;
 		
 		   # first branch, haven't seen the distro yet
-		   if( ! exists $Seen{ $name } )       { $Seen{ $name } = $tuple }
+		   if( ! exists $Seen{ $name } )        { $Seen{ $name } = $tuple }
 		   # second branch, the version we see now is greater than before
 		elsif( $Seen{ $name }[2] lt $version )  { $Seen{ $name } = $tuple }
 		   # third branch, nothing. Really? Are you sure there's not another case?

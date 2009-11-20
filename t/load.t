@@ -1,5 +1,6 @@
 BEGIN {
 	@classes = qw(
+		CPAN::PackageDetails
 		CPAN::PackageDetails::Header
 		CPAN::PackageDetails::Entries
 		CPAN::PackageDetails::Entry
