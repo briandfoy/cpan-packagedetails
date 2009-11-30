@@ -1,5 +1,9 @@
 Changes for CPAN::PackageDetails
 
+0.2401 - Mon Nov 30 15:12:51 2009
+	* *::Entries->add_entry now croaks if you pass it a package
+	that doesn't look like a valid Perl namespace.
+
 0.24 - Fri Nov 20 05:52:50 2009
 	* I got the check_file tests named backward. Now they are
 	right side up.
