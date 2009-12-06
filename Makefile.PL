@@ -17,7 +17,7 @@ WriteMakefile(
 		'Test::Output'           => '0.10',
 		'IO::Compress::Gzip'     => '0',
 		'IO::Uncompress::Gunzip' => '0',
-		'version'                => '0.74',
+		'version'                => '0.78',
 		},
 
 	'PM'           => {
