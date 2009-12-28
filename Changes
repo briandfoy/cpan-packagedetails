@@ -1,5 +1,9 @@
 Changes for CPAN::PackageDetails
 
+0.25 - Mon Dec 28 09:22:48 2009
+	* This version notes that you need at least version.pm 
+	0.77 to handle the version parsing.
+
 0.2401 - Mon Nov 30 15:12:51 2009
 	* *::Entries->add_entry now croaks if you pass it a package
 	that doesn't look like a valid Perl namespace.
