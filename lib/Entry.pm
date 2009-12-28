@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.24_02';
+$VERSION = '0.25';
 
 use Carp;
 
