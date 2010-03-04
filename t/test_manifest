@@ -13,3 +13,4 @@ as_string.t
 write_file.t
 check_file.t
 _filter_older_dists.t
+get_entries.t

@@ -11,7 +11,7 @@ use File::Basename;
 use File::Spec::Functions;
 
 BEGIN {
-	$VERSION = '0.25';
+	$VERSION = '0.25_01';
 	}
 
 =head1 NAME
@@ -148,7 +148,7 @@ BEGIN {
 # them to the right delegate
 my %Dispatch = (
 		header  => { map { $_, 1 } qw(default_headers get_header set_header header_exists columns_as_list) },
-		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once) },
+		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once get_entries_by_package get_entries_by_version get_entries_by_path) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
 		
@@ -284,8 +284,9 @@ sub read
 		
 	require IO::Uncompress::Gunzip;
 
-	my $fh = IO::Uncompress::Gunzip->new( $file ) or do {	
-		carp "Could not open $file: $IO::Compress::Gunzip::GunzipError";
+	my $fh = IO::Uncompress::Gunzip->new( $file ) or do {
+		no warnings;
+		carp "Could not open $file: $IO::Compress::Gunzip::GunzipError\n";
 		return;
 		};
 	

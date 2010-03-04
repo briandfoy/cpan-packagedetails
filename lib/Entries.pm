@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.25';
+$VERSION = '0.25_01';
 
 use Carp;
 
@@ -285,6 +285,54 @@ sub as_unique_sorted_list
 		scalar  @{ $self->{sorted} };
 	
 	return $return;
+	}
+
+=item get_entries_by_package( PACKAGE )
+
+Returns the entry objects for the named PACKAGE.
+
+=cut
+
+sub get_entries_by_package
+	{
+	my( $self, $package ) = @_;
+	
+	my @entries =
+		map   { values %{$self->{entries}{$package}} } 
+		grep  { $_ eq $package } 
+		keys %{ $self->{entries} };
+	}
+
+=item get_entries_by_version( VERSION )
+
+Returns the entry objects for any entries with VERSION.
+
+=cut
+
+sub get_entries_by_version
+	{
+	my( $self, $version ) = @_;
+	
+	my @entries =
+		map   { $self->{entries}{$_}{$version} }
+		grep  { exists $self->{entries}{$_}{$version} } 
+		keys %{ $self->{entries} };
+	}
+
+=item get_entries_by_path( PATH )
+
+Returns the entry objects for any entries with PATH.
+
+=cut
+
+sub get_entries_by_path
+	{
+	my( $self, $path ) = @_;
+	
+	my @entries =
+		map   { $self->{entries}{$_}{$path} }
+		grep  { exists $self->{entries}{$_}{$path} } 
+		keys %{ $self->{entries} };
 	}
 
 =back
