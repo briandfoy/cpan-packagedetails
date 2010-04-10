@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.25_01';
+$VERSION = '0.25_02';
 
 use Carp;
 
@@ -300,6 +300,31 @@ sub get_entries_by_package
 	my @entries =
 		map   { values %{$self->{entries}{$package}} } 
 		grep  { $_ eq $package } 
+		keys %{ $self->{entries} };
+	}
+
+=item get_entries_by_distribution( DISTRIBUTION )
+
+Returns the entry objects for the named DISTRIBUTION.
+
+=cut
+
+sub get_entries_by_distribution
+	{
+	require CPAN::DistnameInfo;
+	my( $self, $distribution ) = @_;
+	
+	my @entries =
+		grep  { # $_ is the entry hash
+			my $info = CPAN::DistnameInfo->new( 
+				$_->{'path'} 
+				);
+			my $dist = $info->dist;
+			$info->dist eq $distribution;
+			}
+		map { # $_ is the package name
+			values %{ $self->{entries}{$_} }
+			}
 		keys %{ $self->{entries} };
 	}
 

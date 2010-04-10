@@ -56,6 +56,20 @@ foreach my $pair ( @packages )
 	my @packages = $package_details->get_entries_by_package( $package );
 	is( scalar @packages, $count, "Found $count $package entries" );
 	}
+
+my @distributions = (
+	[ qw( Foo-Baz 2) ],
+	[ qw( Quux    1) ],
+	[ qw( Foo     4) ],
+	[ qw( Foo-Bar 0) ],
+	);
+	
+foreach my $distribution ( @distributions )
+	{
+	my( $distribution, $count ) = @$distribution;
+	my @distributions = $package_details->get_entries_by_distribution( $distribution );
+	is( scalar @distributions, $count, "Found $count $distribution entries" );
+	}
 	
 }
 

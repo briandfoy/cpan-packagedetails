@@ -11,7 +11,7 @@ use File::Basename;
 use File::Spec::Functions;
 
 BEGIN {
-	$VERSION = '0.25_01';
+	$VERSION = '0.25_02';
 	}
 
 =head1 NAME
@@ -148,7 +148,7 @@ BEGIN {
 # them to the right delegate
 my %Dispatch = (
 		header  => { map { $_, 1 } qw(default_headers get_header set_header header_exists columns_as_list) },
-		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once get_entries_by_package get_entries_by_version get_entries_by_path) },
+		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once get_entries_by_package get_entries_by_version get_entries_by_path get_entries_by_distribution) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
 		
