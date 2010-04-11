@@ -52,11 +52,8 @@ is( $distributions[0]{'path'}, 'B/BU/BUSTER/Bean-1.23.tgz', 'Got same distro' );
 {
 ok( -e $dbmfile, "DBM::Deep file is not there at the start" );
 
-my $package_details = $class->new( dbmdeep => 't/copied.dbm' );
-print STDERR "2", "-" x 50, "\n", Dumper( $package_details ), "\n";
+my $package_details = $class->new( dbmdeep => $dbmfile );
 my $class = ref $package_details;
-no strict 'refs';
-print STDERR qq|ISA: @{"${class}::ISA"}\n|;
 is( $package_details->count, 1, "Count is the same number as added entries" );
 
 my @packages = $package_details->get_entries_by_package( 'Buster::Bean' );
