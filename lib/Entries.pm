@@ -313,14 +313,10 @@ sub get_entries_by_distribution
 	{
 	require CPAN::DistnameInfo;
 	my( $self, $distribution ) = @_;
-	
 	my @entries =
 		grep  { # $_ is the entry hash
-			my $info = CPAN::DistnameInfo->new( 
-				$_->{'path'} 
-				);
-			my $dist = $info->dist;
-			$info->dist eq $distribution;
+			my $info = CPAN::DistnameInfo->new( $_->{'path'} );
+			defined $info->dist && $info->dist eq $distribution;
 			}
 		map { # $_ is the package name
 			values %{ $self->{entries}{$_} }
