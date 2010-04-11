@@ -1,5 +1,10 @@
 Changes for CPAN::PackageDetails
 
+0.25_02 - Sun Apr 11 15:58:48 2010
+	* You can now use a DBM::Deep object as the packages object
+	so you can parse a 02packages file and keep the result. Let's
+	see how CPAN Testers like it first, though.
+
 0.25 - Mon Dec 28 09:22:48 2009
 	* This version notes that you need at least version.pm 
 	0.77 to handle the version parsing.
