@@ -21,7 +21,9 @@ t/allow_packages_only_once.t
 t/as_string.t
 t/autoload.t
 t/check_file.t
+t/dbm-deep.t
 t/format_date.t
+t/get_entries.t
 t/get_header.t
 t/load.t
 t/new.t
