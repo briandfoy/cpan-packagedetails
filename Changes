@@ -1,5 +1,8 @@
 Changes for CPAN::PackageDetails
 
+0.25_03 - Tue Apr 20 14:57:51 2010
+	* Add DBM::Deep as a pre-requisite
+
 0.25_02 - Sun Apr 11 15:58:48 2010
 	* You can now use a DBM::Deep object as the packages object
 	so you can parse a 02packages file and keep the result. Let's
