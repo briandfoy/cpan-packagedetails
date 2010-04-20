@@ -13,6 +13,7 @@ WriteMakefile(
 
 	'PREREQ_PM'    => { 
 		'CPAN::DistnameInfo'     => '0',
+		'DBM::Deep'              => '0',
 		'Test::More'             => '0',
 		'Test::Output'           => '0.10',
 		'IO::Compress::Gzip'     => '0',

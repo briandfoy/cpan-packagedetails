@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.25_02';
+$VERSION = '0.25_03';
 
 use Carp;
 
@@ -313,6 +313,8 @@ sub get_entries_by_distribution
 	{
 	require CPAN::DistnameInfo;
 	my( $self, $distribution ) = @_;
+	croak "You must specify a distribution!" unless defined $distribution;
+	
 	my @entries =
 		grep  { # $_ is the entry hash
 			my $info = CPAN::DistnameInfo->new( $_->{'path'} );
