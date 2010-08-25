@@ -118,13 +118,30 @@ sub entries { $_[0]->{entries} }
 
 =item allow_packages_only_once( [ARG] )
 
+Set or retrieve the value of the allow_packages_only_once setting. It's
+a boolean.
+
 =cut
 
 sub allow_packages_only_once
 	{	
-	$_[0]->{allow_packages_only_once} = $_[1] if defined $_[1];
+	$_[0]->{allow_packages_only_once} = !! $_[1] if defined $_[1];
 	
 	$_[0]->{allow_packages_only_once};
+	}
+
+=item disallow_alpha_versions( [ARG] )
+
+Set or retrieve the value of the disallow_alpha_versions settings. It's
+a boolean.
+
+=cut
+
+sub disallow_alpha_versions
+	{	
+	$_[0]->{disallow_alpha_versions} = !! $_[1] if defined $_[1];
+	
+	$_[0]->{disallow_alpha_versions};
 	}
 	
 =item add_entry
@@ -141,6 +158,28 @@ versions for each package.
 
 =cut
 
+sub _parse_version {
+	my( $self, $version ) = @_;
+
+	my $warning;
+	local $SIG{__WARN__} = sub { $warning = join "\n", @_ };
+
+	my( $parsed, $alpha ) = eval { 
+		die "Version string is undefined\n" unless defined $version;
+		die "Version string is empty\n"     if '' eq $version;
+		my $v = version->parse($version);
+		map { $v->$_() } qw( numify is_alpha );
+		};
+	do {
+		no warnings 'uninitialized';
+		my $at = $@;
+		chomp, s/\s+at\s+.*// for ( $at, $warning );
+		   if( $at )              { ( 0,       $alpha, $at      ) }
+		elsif( defined $warning ) { ( $parsed, $alpha, $warning ) }
+		else                      { ( $parsed, $alpha, undef    ) }
+		};	
+	}
+	
 sub add_entry
 	{
 	my( $self, %args ) = @_;
@@ -155,9 +194,19 @@ sub add_entry
 		$args{'package name'} = $args{package_name};
 		delete $args{package_name};
 		}
-	
-	$args{'version'} = 'undef' unless defined $args{'version'};
-	
+
+	my( $parsed, $alpha, $warning ) = $self->_parse_version( $args{'version'} );
+
+	if( defined $warning ) {
+		$warning = "add_entry has a problem parsing [$args{'version'}] for package [$args{'package name'}]: [$warning] I'm using [$parsed] as the version for [$args{'package name'}].";
+		carp( $warning );
+		}
+
+	if( $self->disallow_alpha_versions && $alpha )
+		{
+		croak "add_entry interprets [$parsed] as an alpha version, and disallow_alpha_versions is on";
+		}
+		
 	unless( defined $args{'package name'} )
 		{
 		croak "No 'package name' parameter!";
@@ -189,6 +238,8 @@ sub add_entry
 		$args{'package name'}
 		}{$args{'version'}
 			} = $self->entry_class->new( %args );
+	
+	return 1;
 	}
 
 sub _mark_as_dirty

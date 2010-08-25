@@ -54,6 +54,7 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 		written_by   => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
 		last_updated => CPAN::PackageDetails->format_date,
 		allow_packages_only_once => 1,
+		disallow_alpha_versions  => 1,
 		);
 
 	$package_details->add_entry(
@@ -106,7 +107,12 @@ method shows you which values you can pass to C<new>. For instance:
 		)
 
 If you specify the C<allow_packages_only_once> option with a true value
-and you try to add that package twice, the object will die. See C<add_entry>.
+and you try to add that package twice, the object will die. See C<add_entry>
+in C<CPAN::PackageDetails::Entries>.
+
+If you specify the C<disallow_alpha_versions> option with a true value
+and you try to add that package twice, the object will die. See C<add_entry>
+in C<CPAN::PackageDetails::Entries>.
 
 =cut
 
@@ -175,7 +181,7 @@ BEGIN {
 # them to the right delegate
 my %Dispatch = (
 		header  => { map { $_, 1 } qw(default_headers get_header set_header header_exists columns_as_list) },
-		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once get_entries_by_package get_entries_by_version get_entries_by_path get_entries_by_distribution) },
+		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once disallow_alpha_versions get_entries_by_package get_entries_by_version get_entries_by_path get_entries_by_distribution) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
 		
@@ -242,6 +248,7 @@ my %defaults = (
 	entry_class     => 'CPAN::PackageDetails::Entry',
 
 	allow_packages_only_once => 1,
+	disallow_alpha_versions  => 0,
 	);
 	
 sub init
@@ -268,6 +275,7 @@ sub init
 		entry_class              => $self->entry_class,
 		columns                  => [ split /,\s+/, $config{columns} ],
 		allow_packages_only_once => $config{allow_packages_only_once},
+		disallow_alpha_versions  => $config{disallow_alpha_versions},
 		) unless exists $self->{entries};
 	
 	$self->{header}  = $self->header_class->new(
