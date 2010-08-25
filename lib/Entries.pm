@@ -6,6 +6,7 @@ use vars qw($VERSION);
 $VERSION = '0.25_04';
 
 use Carp;
+use version;
 
 sub DESTROY { }
 
