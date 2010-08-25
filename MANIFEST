@@ -18,8 +18,10 @@ MANIFEST			This list of files
 README
 t/_filter_older_dists.t
 t/allow_packages_only_once.t
+t/alpha_versions.t
 t/as_string.t
 t/autoload.t
+t/bad_versions.t
 t/check_file.t
 t/dbm-deep.t
 t/format_date.t

@@ -16,7 +16,7 @@ CPAN::PackageDetails::Entries - Handle the collection of records of 02packages.d
 =head1 SYNOPSIS
 
 Used internally by CPAN::PackageDetails
-	
+
 =head1 DESCRIPTION
 
 =head2 Methods
@@ -36,20 +36,20 @@ and you try to add that package twice, the object will die. See C<add_entry>.
 
 =cut
 
-sub new { 
+sub new {
 	my( $class, %args ) = @_;
-	
-	my %hash = ( 
+
+	my %hash = (
 		entry_class              => 'CPAN::PackageDetails::Entry',
 		allow_packages_only_once => 1,
 		columns                  => [],
 		entries                  => {},
 		%args
 		);
-		
+
 	$hash{max_widths} = [ (0) x @{ $hash{columns} } ];
-	
-	bless \%hash, $_[0] 
+
+	bless \%hash, $_[0]
 	}
 
 =item entry_class
@@ -77,34 +77,34 @@ Returns the list position of the named COLUMN.
 sub column_index_for
 	{
 	my( $self, $column ) = @_;
-	
-	
-	my $index = grep {  
+
+
+	my $index = grep {
 		$self->{columns}[$_] eq $column
 		} 0 .. @{ $self->columns };
-		
+
 	return unless defined $index;
 	return $index;
 	}
-	
+
 =item count
 
 Returns the number of entries. This is not the same as the number of
 lines that would show up in the F<02packages.details.txt> file since
-this method counts duplicates as well. 
+this method counts duplicates as well.
 
 =cut
 
-sub count 
-	{ 
+sub count
+	{
 	my $self = shift;
-	
+
 	my $count = 0;
 	foreach my $package ( keys %{ $self->{entries} } )
 		{
 		$count += keys %{ $self->{entries}{$package} };
 		}
-		
+
 	return $count;
 	}
 
@@ -124,9 +124,9 @@ a boolean.
 =cut
 
 sub allow_packages_only_once
-	{	
+	{
 	$_[0]->{allow_packages_only_once} = !! $_[1] if defined $_[1];
-	
+
 	$_[0]->{allow_packages_only_once};
 	}
 
@@ -138,12 +138,12 @@ a boolean.
 =cut
 
 sub disallow_alpha_versions
-	{	
+	{
 	$_[0]->{disallow_alpha_versions} = !! $_[1] if defined $_[1];
-	
+
 	$_[0]->{disallow_alpha_versions};
 	}
-	
+
 =item add_entry
 
 Add an entry to the collection. Call this on the C<CPAN::PackageDetails>
@@ -153,7 +153,7 @@ If you've set C<allow_packages_only_once> to a true value (which is the
 default, too), C<add_entry> will die if you try to add another entry with
 the same package name even if it has a different or greater version. You can
 set this to a false value and add as many entries as you like then use
-C<as_unqiue_sorted_list> to get just the entries with the highest 
+C<as_unqiue_sorted_list> to get just the entries with the highest
 versions for each package.
 
 =cut
@@ -164,7 +164,7 @@ sub _parse_version {
 	my $warning;
 	local $SIG{__WARN__} = sub { $warning = join "\n", @_ };
 
-	my( $parsed, $alpha ) = eval { 
+	my( $parsed, $alpha ) = eval {
 		die "Version string is undefined\n" unless defined $version;
 		die "Version string is empty\n"     if '' eq $version;
 		my $v = version->parse($version);
@@ -177,16 +177,16 @@ sub _parse_version {
 		   if( $at )              { ( 0,       $alpha, $at      ) }
 		elsif( defined $warning ) { ( $parsed, $alpha, $warning ) }
 		else                      { ( $parsed, $alpha, undef    ) }
-		};	
+		};
 	}
-	
+
 sub add_entry
 	{
 	my( $self, %args ) = @_;
 
 	$self->_mark_as_dirty;
-	
-	# The column name has a space in it, but that looks weird in a 
+
+	# The column name has a space in it, but that looks weird in a
 	# hash constructor and I keep doing it wrong. If I type "package_name"
 	# I'll just make it work.
 	if( exists $args{package_name} )
@@ -206,7 +206,7 @@ sub add_entry
 		{
 		croak "add_entry interprets [$parsed] as an alpha version, and disallow_alpha_versions is on";
 		}
-		
+
 	unless( defined $args{'package name'} )
 		{
 		croak "No 'package name' parameter!";
@@ -216,7 +216,7 @@ sub add_entry
 	unless( $args{'package name'} =~ m/
 		^
 		[A-Za-z0-9_]+
-		(?: 
+		(?:
 			(?:\::|')
 			[A-Za-z0-9_]+
 		)*
@@ -226,19 +226,19 @@ sub add_entry
 		croak "Package name [$args{'package name'}] looks suspicious. Not adding it!";
 		return;
 		}
-		
+
 	if( $self->allow_packages_only_once and $self->already_added( $args{'package name'} ) )
 		{
 		croak "$args{'package name'} was already added to CPAN::PackageDetails!";
 		return;
 		}
-	
+
 	# should check for allowed columns here
 	$self->{entries}{
 		$args{'package name'}
 		}{$args{'version'}
 			} = $self->entry_class->new( %args );
-	
+
 	return 1;
 	}
 
@@ -265,16 +265,16 @@ on each Entry object, and concatenates the results for all Entry objects.
 sub as_string
 	{
 	my( $self ) = @_;
-	
+
 	my $string;
-	
+
 	my( $return ) = $self->as_unique_sorted_list;
-	
+
 	foreach my $entry ( @$return )
 		{
 		$string .= $entry->as_string( $self->columns );
 		}
-	
+
 	$string || '';
 	}
 
@@ -298,7 +298,7 @@ sub as_unique_sorted_list
 	unless( ref $self->{sorted} eq ref [] )
 		{
 		$self->{sorted} = [];
-		
+
 		my %Seen;
 
 		my( $k1, $k2 ) = ( $self->columns )[0,1];
@@ -319,22 +319,37 @@ sub as_unique_sorted_list
 					need_version    => 0.74,
 					inc             => [ @INC ],
 					error           => VERSION_PM,
-					} 
+					}
 				);
-				
+
 			my( $highest_version ) =
-				sort { version->parse($b) <=> version->parse($a) }
+				map  { $_->[0] }
+				sort { $b->[1] <=> $a->[1] } # sort on version objects
+				map  {
+					my $w;
+					local $SIG{__WARN__} = sub { $w = join "\n", @_ };
+					my $v = eval { version->new( $_ ) };
+					$w = $w || $@;
+					$w = s/\s+at\s+//;
+					carp "Version [$_] for package [$package] parses with a warning: [$w]. Using [$v] as the version."
+						if $w;
+					if( $self->disallow_alpha_versions and $v->is_alpha ) {
+						carp "Skipping alpha version [$v] for [$package] while sorting versions.";
+						()
+						}
+					else { [ $_, $v ] }
+					}
 				keys %$entries;
 
 			push @{ $self->{sorted} }, $entries->{$highest_version};
 			}
 		}
-	
-	my $return = wantarray ? 
-		$self->{sorted} 
+
+	my $return = wantarray ?
+		$self->{sorted}
 			:
 		scalar  @{ $self->{sorted} };
-	
+
 	return $return;
 	}
 
@@ -347,10 +362,10 @@ Returns the entry objects for the named PACKAGE.
 sub get_entries_by_package
 	{
 	my( $self, $package ) = @_;
-	
+
 	my @entries =
-		map   { values %{$self->{entries}{$package}} } 
-		grep  { $_ eq $package } 
+		map   { values %{$self->{entries}{$package}} }
+		grep  { $_ eq $package }
 		keys %{ $self->{entries} };
 	}
 
@@ -365,7 +380,7 @@ sub get_entries_by_distribution
 	require CPAN::DistnameInfo;
 	my( $self, $distribution ) = @_;
 	croak "You must specify a distribution!" unless defined $distribution;
-	
+
 	my @entries =
 		grep  { # $_ is the entry hash
 			my $info = CPAN::DistnameInfo->new( $_->{'path'} );
@@ -386,10 +401,10 @@ Returns the entry objects for any entries with VERSION.
 sub get_entries_by_version
 	{
 	my( $self, $version ) = @_;
-	
+
 	my @entries =
 		map   { $self->{entries}{$_}{$version} }
-		grep  { exists $self->{entries}{$_}{$version} } 
+		grep  { exists $self->{entries}{$_}{$version} }
 		keys %{ $self->{entries} };
 	}
 
@@ -402,10 +417,10 @@ Returns the entry objects for any entries with PATH.
 sub get_entries_by_path
 	{
 	my( $self, $path ) = @_;
-	
+
 	my @entries =
 		map   { $self->{entries}{$_}{$path} }
-		grep  { exists $self->{entries}{$_}{$path} } 
+		grep  { exists $self->{entries}{$_}{$path} }
 		keys %{ $self->{entries} };
 	}
 
@@ -421,7 +436,7 @@ sub get_entries_by_path
 This source is in Github:
 
 	http://github.com/briandfoy/cpan-packagedetails
-	
+
 =head1 AUTHOR
 
 brian d foy, C<< <bdfoy@cpan.org> >>

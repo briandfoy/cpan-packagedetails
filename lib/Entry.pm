@@ -1,4 +1,4 @@
-package CPAN::PackageDetails::Entry;	
+package CPAN::PackageDetails::Entry;
 use strict;
 use warnings;
 
@@ -14,7 +14,7 @@ CPAN::PackageDetails::Entry - Handle a single record of 02packages.details.txt.g
 =head1 SYNOPSIS
 
 Used internally by CPAN::PackageDetails
-	
+
 =head1 DESCRIPTION
 
 An entry is a single line from F<02packages.details.txt> that maps a
@@ -24,7 +24,7 @@ in the header.
 
 By default, there are three columns: package name, version, and path.
 
-Inside a CPAN::PackageDetails object, the actual work and 
+Inside a CPAN::PackageDetails object, the actual work and
 manipulation of the entries are handled by delegate classes specified
 in C<entries_class> and C<entry_class>). At the moment these are
 immutable, so you'd have to subclass this module to change them.
@@ -42,7 +42,7 @@ Create a new entry
 sub new
 	{
 	my( $class, %args ) = @_;
-	
+
 	bless { %args }, $class
 	}
 
@@ -59,10 +59,10 @@ Access values of the entry.
 sub path         { $_[0]->{path} }
 sub version      { $_[0]->{version} }
 sub package_name { $_[0]->{'package name'} }
-	
+
 =item as_string( @column_names )
 
-Formats the Entry as text. It joins with whitespace the values for the 
+Formats the Entry as text. It joins with whitespace the values for the
 column names you pass it. You get the newline automatically.
 
 Any values that are not defined (or the empty string) turn into the
@@ -73,11 +73,11 @@ literal string 'undef' to preserve the columns in the output.
 sub as_string
 	{
 	my( $self, @columns ) = @_;
-	
+
 	no warnings 'uninitialized';
 	# can't check defined() because that let's the empty string through
-	return join( "\t", 
-		map { length $self->{$_} ? $self->{$_} : 'undef' } @columns 
+	return join( "\t",
+		map { length $self->{$_} ? $self->{$_} : 'undef' } @columns
 		) . "\n";
 	}
 
@@ -93,7 +93,7 @@ sub as_string
 This source is in Github:
 
 	http://github.com/briandfoy/cpan-packagedetails
-	
+
 =head1 AUTHOR
 
 brian d foy, C<< <bdfoy@cpan.org> >>

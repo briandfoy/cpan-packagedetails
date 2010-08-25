@@ -16,3 +16,4 @@ _filter_older_dists.t
 get_entries.t
 dbm-deep.t
 bad_versions.t
+alpha_versions.t
