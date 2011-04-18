@@ -76,9 +76,9 @@ sub as_string
 
 	no warnings 'uninitialized';
 	# can't check defined() because that let's the empty string through
-	return join( "\t",
-		map { length $self->{$_} ? $self->{$_} : 'undef' } @columns
-		) . "\n";
+
+  return sprintf "%-34s %5s  %s\n",
+      map { length $self->{$_} ? $self->{$_} : 'undef' } @columns;
 	}
 
 =back
