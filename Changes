@@ -1,5 +1,8 @@
 Changes for CPAN::PackageDetails
 
+0.25_05 - Mon Apr 18 17:15:56 2011
+	* rjbs made the columns in the packages file line up (mostly)
+
 0.25_04 - Wed Aug 25 18:14:46 2010
 	* Added disallow_alpha_versions. add_entry will complain and not 
 	add alpha versions, and as_unique_sorted_list will ignore them.
