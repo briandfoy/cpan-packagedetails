@@ -27,13 +27,16 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 
 	my $count      = $package_details->count;
 
-	my $records    = $package_details->entries;
+	print join("\t", $package_details->columns_as_list), "\n";
 
-	foreach my $record ( @$records )
+	my $records    = $package_details->entries->entries;
+
+	my %json_buckets;
+	foreach my $package_name ( keys %{$records} )
 		{
 		# See CPAN::PackageDetails::Entry too
-		print join "\t", map { $record->$_() } ('package name', 'version', 'path')
-		print join "\t", map { $record->$_() } $package_details->columns_as_list;
+		my ($version, $record) = (%{$records->{$package_name}});
+		print join("\t", map { $record->$_() } ('package_name', 'version', 'path')), "\n";
 		}
 
 	# not yet implemented, but would be really, really cool eh?
