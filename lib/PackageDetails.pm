@@ -11,7 +11,7 @@ use File::Basename;
 use File::Spec::Functions;
 
 BEGIN {
-	$VERSION = '0.25_04';
+	$VERSION = '0.25_05';
 	}
 
 =head1 NAME
