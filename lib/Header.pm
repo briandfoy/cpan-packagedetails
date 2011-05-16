@@ -238,7 +238,8 @@ sub as_string
 		push @lines, "$out_field: $value";
 		}
 
-	push @lines, "Line-Count: " . $self->_entries->as_unique_sorted_list;
+	push @lines, "Line-Count: " . $self->_entries->as_unique_sorted_list
+		unless $self->header_exists( 'line_count' );
 
 	join "\n", sort( @lines ), "\n";
 	}
