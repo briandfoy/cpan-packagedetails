@@ -327,7 +327,7 @@ sub read
 		return;
 		};
 
-	my $self = $class->_parse( $fh );
+	my $self = $class->read_fh( $fh );
 
 	$self->{source_file} = $file;
 
@@ -343,7 +343,14 @@ C<read> method.
 
 sub source_file { $_[0]->{source_file} }
 
-sub _parse
+=item read_fh( FILEHANDLE )
+
+Read an existing 02packages.details.txt.gz file, given a filehandle which
+yields the uncompressed data in that file.
+
+=cut
+
+sub read_fh
 	{
 	my( $class, $fh ) = @_;
 
