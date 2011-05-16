@@ -351,6 +351,7 @@ sub _parse
 
 	while( <$fh> ) # header processing
 		{
+		last if /^\s*$/;
 		chomp;
 		my( $field, $value ) = split /\s*:\s*/, $_, 2;
 
@@ -360,7 +361,6 @@ sub _parse
 		carp "Unknown field value [$field] at line $.! Skipping..."
 			unless 1; # XXX should there be field name restrictions?
 		$package_details->set_header( $field, $value );
-		last if /^\s*$/;
 		}
 
 	my @columns = $package_details->columns_as_list;
