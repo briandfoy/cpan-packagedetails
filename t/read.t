@@ -52,6 +52,11 @@ is( $header->line_count, $lines,
 my $entries = $package_details->entries;
 is( $entries->count, $lines, 
 	"Entries has the right number of elements from delegate level");
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Simple round-tripping test
+unlike( $header->as_string, qr/^ line-count: [^\n]* \n .* ^ line-count: /ixms,
+        "Round-tripping parsed header doesn't duplicate Line-Count" );
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

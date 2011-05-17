@@ -327,7 +327,7 @@ sub read
 		return;
 		};
 
-	my $self = $class->_parse( $fh );
+	my $self = $class->read_fh( $fh );
 
 	$self->{source_file} = $file;
 
@@ -343,7 +343,14 @@ C<read> method.
 
 sub source_file { $_[0]->{source_file} }
 
-sub _parse
+=item read_fh( FILEHANDLE )
+
+Read an existing 02packages.details.txt.gz file, given a filehandle which
+yields the uncompressed data in that file.
+
+=cut
+
+sub read_fh
 	{
 	my( $class, $fh ) = @_;
 
@@ -351,6 +358,7 @@ sub _parse
 
 	while( <$fh> ) # header processing
 		{
+		last if /^\s*$/;
 		chomp;
 		my( $field, $value ) = split /\s*:\s*/, $_, 2;
 
@@ -360,7 +368,6 @@ sub _parse
 		carp "Unknown field value [$field] at line $.! Skipping..."
 			unless 1; # XXX should there be field name restrictions?
 		$package_details->set_header( $field, $value );
-		last if /^\s*$/;
 		}
 
 	my @columns = $package_details->columns_as_list;
