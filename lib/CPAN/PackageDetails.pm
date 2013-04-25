@@ -118,13 +118,11 @@ in C<CPAN::PackageDetails::Entries>.
 
 BEGIN {
 my $class_counter = 0;
-sub new
-	{
+sub new {
 	my( $class, %args ) = @_;
 
 	my( $ref, $bless_class ) = do {
-		if( exists $args{dbmdeep} )
-			{
+		if( exists $args{dbmdeep} ) {
 			eval { require DBM::Deep };
 			if( $@ ) {
 				croak "You must have DBM::Deep installed and discoverable to use the dbmdeep feature";
@@ -140,8 +138,7 @@ sub new
 			@{"${single_class}::ISA"} = ( $class , 'DBM::Deep' );
 			( $ref, $single_class );
 			}
-		else
-			{
+		else {
 			( {}, $class );
 			}
 		};
@@ -190,14 +187,12 @@ my %Dispatchable = map { #inverts %Dispatch
 	map { $_, $class } keys %{$Dispatch{$class}}
 	} keys %Dispatch;
 
-sub can
-	{
+sub can {
 	my( $self, @methods ) = @_;
 
 	my $class = ref $self || $self; # class or instance
 
-	foreach my $method ( @methods )
-		{
+	foreach my $method ( @methods ) {
 		next if
 			defined &{"${class}::$method"} ||
 			exists $Dispatchable{$method}  ||
@@ -208,8 +203,7 @@ sub can
 	return 1;
 	}
 
-sub AUTOLOAD
-	{
+sub AUTOLOAD {
 	my $self = shift;
 
 
@@ -217,17 +211,14 @@ sub AUTOLOAD
 	carp "There are no AUTOLOADable class methods: $AUTOLOAD" unless ref $self;
 	( my $method = $AUTOLOAD ) =~ s/.*:://;
 
-	if( exists $Dispatchable{$method} )
-		{
+	if( exists $Dispatchable{$method} ) {
 		my $delegate = $Dispatchable{$method};
 		return $self->$delegate()->$method(@_)
 		}
-	elsif( $self->header_exists( $method ) )
-		{
+	elsif( $self->header_exists( $method ) ) {
 		return $self->header->get_header( $method );
 		}
-	else
-		{
+	else {
 		carp "No such method as $method!";
 		return;
 		}
