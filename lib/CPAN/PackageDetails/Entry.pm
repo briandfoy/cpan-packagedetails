@@ -39,8 +39,7 @@ Create a new entry
 
 =cut
 
-sub new
-	{
+sub new {
 	my( $class, %args ) = @_;
 
 	bless { %args }, $class
@@ -70,8 +69,7 @@ literal string 'undef' to preserve the columns in the output.
 
 =cut
 
-sub as_string
-	{
+sub as_string {
 	my( $self, @columns ) = @_;
 
 	no warnings 'uninitialized';

@@ -56,8 +56,7 @@ so it can put it in the "Line-Count" header.
 
 =cut
 
-sub new
-	{
+sub new {
 	my( $class, %args ) = @_;
 
 	my %hash = (
@@ -76,8 +75,7 @@ Write the date in PAUSE format. For example:
 
 =cut
 
-sub format_date
-	{
+sub format_date {
 	my( $second, $minute, $hour, $date, $monnum, $year, $wday )  = gmtime;
 	$year += 1900;
 
@@ -95,20 +93,17 @@ excludes various fake headers stored in the object.
 
 =cut
 
-sub default_headers
-	{
+sub default_headers {
 	map { $_, $_[0]->{$_} }
 		grep ! /^_|_class|allow/, keys %{ $_[0] }
 	}
 
-sub can
-	{
+sub can {
 	my( $self, @methods ) = @_;
 
 	my $class = ref $self || $self; # class or instance
 
-	foreach my $method ( @methods )
-		{
+	foreach my $method ( @methods ) {
 		next if
 			defined &{"${class}::$method"} ||
 			$self->header_exists( $method );
@@ -125,8 +120,7 @@ object and it will take care of finding the right handler.
 
 =cut
 
-sub set_header
-	{
+sub set_header {
 	my( $self, $field, $value ) = @_;
 
 	$self->{$field} = $value;
@@ -139,8 +133,7 @@ its value.
 
 =cut
 
-sub header_exists
-	{
+sub header_exists {
 	my( $self, $field ) = @_;
 
 	exists $self->{$field}
@@ -166,8 +159,7 @@ For most headers, you can also use the header name as the method name:
 
 =cut
 
-sub get_header
-	{
+sub get_header {
 	my( $self, $field ) = @_;
 
 	if( $self->header_exists( $field ) ) { $self->{$field} }
@@ -196,8 +188,7 @@ my %internal_field_name_mapping = (
 
 my %external_field_name_mapping = reverse %internal_field_name_mapping;
 
-sub _internal_name_to_external_name
-	{
+sub _internal_name_to_external_name {
 	my( $self, $internal ) = @_;
 
 	return $internal_field_name_mapping{$internal}
@@ -210,8 +201,7 @@ sub _internal_name_to_external_name
 	return $external;
 	}
 
-sub _external_name_to_internal_name
-	{
+sub _external_name_to_internal_name {
 	my( $self, $external ) = @_;
 
 	return $external_field_name_mapping{$external}
@@ -222,14 +212,12 @@ sub _external_name_to_internal_name
 	lc $internal;
 	}
 
-sub as_string
-	{
+sub as_string {
 	my( $self, $line_count ) = @_;
 
 	# XXX: need entry count
 	my @lines;
-	foreach my $field ( keys %$self )
-		{
+	foreach my $field ( keys %$self ) {
 		next if substr( $field, 0, 1 ) eq '_';
 		my $value = $self->get_header( $field );
 
@@ -244,8 +232,7 @@ sub as_string
 	}
 }
 
-sub AUTOLOAD
-	{
+sub AUTOLOAD {
 	my $self = shift;
 
 	( my $method = $CPAN::PackageDetails::Header::AUTOLOAD ) =~ s/.*:://;

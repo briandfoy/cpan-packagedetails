@@ -244,7 +244,7 @@ my %defaults = (
 	written_by      => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
 
 	header_class    => 'CPAN::PackageDetails::Header',
-	entries_class   => 'CPAN::PackageDetails::Entries',
+	entries_class   => 'CPAN::PackageDetails::PerlHash',
 	entry_class     => 'CPAN::PackageDetails::Entry',
 
 	allow_packages_only_once => 1,
@@ -311,12 +311,10 @@ underscores. For instance:
 
 =cut
 
-sub read
-	{
+sub read {
 	my( $class, $file, %args ) = @_;
 
-	unless( defined $file )
-		{
+	unless( defined $file ) {
 		carp "Missing argument!";
 		return;
 		}
@@ -345,14 +343,12 @@ C<read> method.
 
 sub source_file { $_[0]->{source_file} }
 
-sub _parse
-	{
+sub _parse {
 	my( $class, $fh, %args ) = @_;
 
 	my $package_details = $class->new( %args );
 
-	while( <$fh> ) # header processing
-		{
+	while( <$fh> ) { # header processing
 		last if /\A\s*\Z/;
 		chomp;
 		my( $field, $value ) = split /\s*:\s*/, $_, 2;
@@ -366,8 +362,7 @@ sub _parse
 		}
 
 	my @columns = $package_details->columns_as_list;
-	while( <$fh> ) # entry processing
-		{
+	while( <$fh> ) { # entry processing
 		chomp;
 		my @values = split; # this could be in any order based on columns field.
 		$package_details->add_entry(
@@ -389,12 +384,10 @@ it cannot open OUTPUT_FILE for writing, or if it cannot rename the file.
 
 =cut
 
-sub write_file
-	{
+sub write_file {
 	my( $self, $output_file ) = @_;
 
-	unless( defined $output_file )
-		{
+	unless( defined $output_file ) {
 		carp "Missing argument!";
 		return;
 		}
@@ -409,8 +402,7 @@ sub write_file
 	$self->write_fh( $fh );
 	$fh->close;
 
-	unless( rename "$output_file.$$", $output_file )
-		{
+	unless( rename "$output_file.$$", $output_file ) {
 		carp "Could not rename temporary file to $output_file!\n";
 		return;
 		}
@@ -424,8 +416,7 @@ Formats the object as a string and writes it to FILEHANDLE
 
 =cut
 
-sub write_fh
-	{
+sub write_fh {
 	my( $self, $fh ) = @_;
 
 	print $fh $self->header->as_string, $self->entries->as_string;
@@ -472,8 +463,7 @@ sub ENTRY_COUNT_MISMATCH () { 1 }
 sub MISSING_IN_REPO      () { 2 }
 sub MISSING_IN_FILE      () { 3 }
 
-sub check_file
-	{
+sub check_file {
 	my( $either, $file, $cpan_path ) = @_;
 
 	# works with a class or an instance. We have to create a new
@@ -492,8 +482,7 @@ sub check_file
 		filename    => $file,
 		cwd         => cwd(),
 		};
-	unless( -e $file )
-		{
+	unless( -e $file ) {
 		$error->{missing_file}         = 1;
 		$error->{error_count}         +=  1;
 		}
@@ -508,24 +497,21 @@ sub check_file
 	my $header_count = $packages->get_header( 'line_count' );
 	my $entries_count = $packages->count;
 
-	unless( $header_count )
-		{
+	unless( $header_count ) {
 		$error->{entry_count_mismatch} = 1;
 		$error->{line_count}           = $header_count;
 		$error->{entry_count}          = $entries_count;
 		$error->{error_count}         +=  1;
 		}
 
-	unless( $header_count == $entries_count )
-		{
+	unless( $header_count == $entries_count ) {
 		$error->{entry_count_mismatch} = 1;
 		$error->{line_count}           = $header_count;
 		$error->{entry_count}          = $entries_count;
 		$error->{error_count}         +=  1;
 		}
 
-	if( $cpan_path )
-		{
+	if( $cpan_path ) {
 		my $missing_in_file = $packages->check_for_missing_dists_in_file( $cpan_path );
 		my $missing_in_repo = $packages->check_for_missing_dists_in_repo( $cpan_path );
 
@@ -552,14 +538,12 @@ error output.
 
 =cut
 
-sub check_for_missing_dists_in_repo
-	{
+sub check_for_missing_dists_in_repo {
 	my( $packages, $cpan_path ) = @_;
 
 	my @missing;
 	my( $entries ) = $packages->as_unique_sorted_list;
-	foreach my $entry ( @$entries )
-		{
+	foreach my $entry ( @$entries ) {
 		my $path = $entry->path;
 
 		my $native_path = catfile( $cpan_path, split m|/|, $path );
@@ -581,8 +565,7 @@ error output.
 
 =cut
 
-sub check_for_missing_dists_in_file
-	{
+sub check_for_missing_dists_in_file {
 	my( $packages, $cpan_path ) = @_;
 
 	my $dists = $packages->_get_repo_dists( $cpan_path );
@@ -594,8 +577,7 @@ sub check_for_missing_dists_in_file
 
 	my( $entries ) = $packages->as_unique_sorted_list;
 
-	foreach my $entry ( @$entries )
-		{
+	foreach my $entry ( @$entries ) {
 		my $path = $entry->path;
 		my $native_path = catfile( $cpan_path, split m|/|, $path );
 		delete $files{$native_path};
@@ -604,15 +586,13 @@ sub check_for_missing_dists_in_file
 	[ keys %files ];
 	}
 
-sub _filter_older_dists
-	{
+sub _filter_older_dists {
 	my( $self, $array ) = @_;
 
 	my %Seen;
 	my @order;
 	require  CPAN::DistnameInfo;
-	foreach my $path ( @$array )
-		{
+	foreach my $path ( @$array ) {
 		my( $basename, $directory, $suffix ) = fileparse( $path, qw(.tar.gz .tgz .zip .tar.bz2) );
 		my( $name, $version, $developer ) = CPAN::DistnameInfo::distname_info( $basename );
 		my $tuple = [ $path, $name, $version ];
@@ -627,14 +607,12 @@ sub _filter_older_dists
 		}
 
 	@$array = map {
-		if( exists $Seen{$_} )
-			{
+		if( exists $Seen{$_} ) {
 			my $dist = $Seen{$_}[0];
 			delete $Seen{$_};
 			$dist;
 			}
-		else
-			{
+		else {
 			()
 			}
 		} @order;
@@ -643,8 +621,7 @@ sub _filter_older_dists
 	}
 
 
-sub _distname_info
-	{
+sub _distname_info {
 	my $file = shift or return;
 
 	my ($dist, $version) = $file =~ /^
@@ -705,29 +682,24 @@ sub _distname_info
 
 	# deal with perl versions, merely to see if it is a dev version
 	my $dev;
-	if( length $version )
-		{
+	if( length $version ) {
 		$dev = do {
-			if ($file =~ /^perl-?\d+\.(\d+)(?:\D(\d+))?(-(?:TRIAL|RC)\d+)?$/)
-				{
+			if ($file =~ /^perl-?\d+\.(\d+)(?:\D(\d+))?(-(?:TRIAL|RC)\d+)?$/) {
 				 1 if (($1 > 6 and $1 & 1) or ($2 and $2 >= 50)) or $3;
 				}
-			elsif ($version =~ /\d\D\d+_\d/)
-				{
+			elsif ($version =~ /\d\D\d+_\d/) {
 				1;
 				}
 			};
 		}
-	else
-		{
+	else {
 		$version = undef;
 		}
 
 	($dist, $version, $dev);
 	}
 
-sub _get_repo_dists
-	{
+sub _get_repo_dists {
 	my( $self, $cpan_home ) = @_;
 
 	my @files = ();
