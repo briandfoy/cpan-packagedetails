@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.25_05';
+$VERSION = '0.25_06';
 
 use Carp;
 use version;
@@ -43,6 +43,7 @@ sub new {
 	my %hash = (
 		entry_class              => 'CPAN::PackageDetails::Entry',
 		allow_packages_only_once => 1,
+		allow_suspicious_names   => 0,
 		columns                  => [],
 		entries                  => {},
 		%args
@@ -111,7 +112,8 @@ sub count
 
 =item entries
 
-Returns the list of entries as an array reference.
+Returns the list of entries as an hash reference. The hash key is the
+package name.
 
 =cut
 
@@ -129,6 +131,20 @@ sub allow_packages_only_once
 	$_[0]->{allow_packages_only_once} = !! $_[1] if defined $_[1];
 
 	$_[0]->{allow_packages_only_once};
+	}
+
+=item allow_suspicious_names( [ARG] )
+
+Allow an entry to accept an illegal name. Normally you shouldn't use this,
+but PAUSE has made bad files before.
+
+=cut
+
+sub allow_suspicious_names
+	{
+	$_[0]->{allow_suspicious_names} = !! $_[1] if defined $_[1];
+
+	$_[0]->{allow_suspicious_names};
 	}
 
 =item disallow_alpha_versions( [ARG] )
@@ -222,7 +238,7 @@ sub add_entry
 			[A-Za-z0-9_]+
 		)*
 		\z
-		/x )
+		/x || $self->allow_suspicious_names )
 		{
 		croak "Package name [$args{'package name'}] looks suspicious. Not adding it!";
 		return;
@@ -444,7 +460,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009-2011, brian d foy, All Rights Reserved.
+Copyright (c) 2009-2013, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 

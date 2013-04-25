@@ -11,7 +11,7 @@ use File::Basename;
 use File::Spec::Functions;
 
 BEGIN {
-	$VERSION = '0.25_05';
+	$VERSION = '0.25_06';
 	}
 
 =head1 NAME
@@ -27,12 +27,12 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 
 	my $count      = $package_details->count;
 
-	my $records    = $package_details->entries;
+	my $records    = $package_details->entries->entries;
 
 	foreach my $record ( @$records )
 		{
 		# See CPAN::PackageDetails::Entry too
-		print join "\t", map { $record->$_() } ('package name', 'version', 'path')
+		# print join "\t", map { $record->$_() } ('package name', 'version', 'path')
 		print join "\t", map { $record->$_() } $package_details->columns_as_list;
 		}
 
@@ -181,7 +181,7 @@ BEGIN {
 # them to the right delegate
 my %Dispatch = (
 		header  => { map { $_, 1 } qw(default_headers get_header set_header header_exists columns_as_list) },
-		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once disallow_alpha_versions get_entries_by_package get_entries_by_version get_entries_by_path get_entries_by_distribution) },
+		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once disallow_alpha_versions get_entries_by_package get_entries_by_version get_entries_by_path get_entries_by_distribution allow_suspicious_names) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
 
@@ -249,6 +249,7 @@ my %defaults = (
 
 	allow_packages_only_once => 1,
 	disallow_alpha_versions  => 0,
+	allow_suspicious_names   => 0,
 	);
 
 sub init
@@ -275,6 +276,7 @@ sub init
 		entry_class              => $self->entry_class,
 		columns                  => [ split /,\s+/, $config{columns} ],
 		allow_packages_only_once => $config{allow_packages_only_once},
+		allow_suspicious_names   => $config{allow_suspicious_names},
 		disallow_alpha_versions  => $config{disallow_alpha_versions},
 		) unless exists $self->{entries};
 
@@ -311,7 +313,7 @@ underscores. For instance:
 
 sub read
 	{
-	my( $class, $file ) = @_;
+	my( $class, $file, %args ) = @_;
 
 	unless( defined $file )
 		{
@@ -327,7 +329,7 @@ sub read
 		return;
 		};
 
-	my $self = $class->_parse( $fh );
+	my $self = $class->_parse( $fh, %args );
 
 	$self->{source_file} = $file;
 
@@ -345,22 +347,22 @@ sub source_file { $_[0]->{source_file} }
 
 sub _parse
 	{
-	my( $class, $fh ) = @_;
+	my( $class, $fh, %args ) = @_;
 
-	my $package_details = $class->new;
+	my $package_details = $class->new( %args );
 
 	while( <$fh> ) # header processing
 		{
+		last if /\A\s*\Z/;
 		chomp;
 		my( $field, $value ) = split /\s*:\s*/, $_, 2;
 
-		$field = lc $field;
+		$field = lc( $field || '' );
 		$field =~ tr/-/_/;
 
 		carp "Unknown field value [$field] at line $.! Skipping..."
 			unless 1; # XXX should there be field name restrictions?
 		$package_details->set_header( $field, $value );
-		last if /^\s*$/;
 		}
 
 	my @columns = $package_details->columns_as_list;
@@ -865,7 +867,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009-2011, brian d foy, All Rights Reserved.
+Copyright (c) 2009-2013, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 

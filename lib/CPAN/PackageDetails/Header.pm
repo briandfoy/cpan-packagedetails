@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.25_05';
+$VERSION = '0.25_06';
 
 use Carp;
 
@@ -277,7 +277,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009-2011, brian d foy, All Rights Reserved.
+Copyright (c) 2009-2013, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 
