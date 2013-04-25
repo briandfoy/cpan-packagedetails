@@ -244,7 +244,7 @@ my %defaults = (
 	written_by      => "$0 using CPAN::PackageDetails $CPAN::PackageDetails::VERSION",
 
 	header_class    => 'CPAN::PackageDetails::Header',
-	entries_class   => 'CPAN::PackageDetails::PerlHash',
+	entries_class   => 'CPAN::PackageDetails::Entries',
 	entry_class     => 'CPAN::PackageDetails::Entry',
 
 	allow_packages_only_once => 1,
