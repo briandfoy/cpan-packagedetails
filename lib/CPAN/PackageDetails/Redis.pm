@@ -1,4 +1,4 @@
-package CPAN::PackageDetails::Entries;
+package CPAN::PackageDetails::Redis;
 use strict;
 use warnings;
 
