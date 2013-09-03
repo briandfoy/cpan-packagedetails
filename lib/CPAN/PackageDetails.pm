@@ -27,7 +27,7 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 
 	my $count      = $package_details->count;
 
-	my $records    = $package_details->entries->entries;
+	my $records    = $package_details->entries->get_hash;
 
 	foreach my $record ( @$records )
 		{
@@ -177,8 +177,17 @@ BEGIN {
 # so I need to intercept them at the top-level and redirect
 # them to the right delegate
 my %Dispatch = (
-		header  => { map { $_, 1 } qw(default_headers get_header set_header header_exists columns_as_list) },
-		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once disallow_alpha_versions get_entries_by_package get_entries_by_version get_entries_by_path get_entries_by_distribution allow_suspicious_names) },
+		header  => { map { $_, 1 } qw(
+			default_headers get_header set_header header_exists
+			columns_as_list
+			) },
+		entries => { map { $_, 1 } qw(
+			add_entry count as_unique_sorted_list already_added
+			allow_packages_only_once disallow_alpha_versions
+			get_entries_by_package get_entries_by_version
+			get_entries_by_path get_entries_by_distribution
+			allow_suspicious_names get_hash
+			) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
 
@@ -250,14 +259,12 @@ sub init
 	my %config = ( %defaults, %args );
 
 	# we'll delegate everything, but also try to hide the mess from the user
-	foreach my $key ( map { "${_}_class" } qw(header entries entry) )
-		{
+	foreach my $key ( map { "${_}_class" } qw(header entries entry) ) {
 		$self->{$key}  = $config{$key};
 		delete $config{$key};
 		}
 
-	foreach my $class ( map { $self->$_ } qw(header_class entries_class entry_class) )
-		{
+	foreach my $class ( map { $self->$_ } qw(header_class entries_class entry_class) ) {
 		eval "require $class";
 		}
 

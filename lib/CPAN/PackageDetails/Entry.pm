@@ -57,10 +57,10 @@ Access values of the entry.
 
 =cut
 
-sub path         { $_[0]->{path} }
+sub path         { $_[0]->{path}                    }
 sub author       { ( split m|/|, $_[0]->{path} )[2] }
-sub version      { $_[0]->{version} }
-sub package_name { $_[0]->{'package name'} }
+sub version      { $_[0]->{version}                 }
+sub package_name { $_[0]->{'package name'}          }
 
 =item as_string( @column_names )
 

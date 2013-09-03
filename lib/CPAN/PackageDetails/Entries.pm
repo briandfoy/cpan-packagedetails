@@ -107,14 +107,18 @@ sub count {
 	return $count;
 	}
 
-=item entries
+=item get_hash
 
 Returns the list of entries as an hash reference. The hash key is the
 package name.
 
 =cut
 
-sub entries { $_[0]->{entries} }
+sub entries  {
+	carp "entries is deprecated. Use get_hash instead";
+	&get_hash;
+	}
+sub get_hash { $_[0]->{entries} }
 
 =item allow_packages_only_once( [ARG] )
 
@@ -199,8 +203,7 @@ sub add_entry {
 	# The column name has a space in it, but that looks weird in a
 	# hash constructor and I keep doing it wrong. If I type "package_name"
 	# I'll just make it work.
-	if( exists $args{package_name} )
-		{
+	if( exists $args{package_name} ) {
 		$args{'package name'} = $args{package_name};
 		delete $args{package_name};
 		}
@@ -240,6 +243,7 @@ sub add_entry {
 		}
 
 	# should check for allowed columns here
+	# XXX: this part needs to change based on storage
 	$self->{entries}{
 		$args{'package name'}
 		}{$args{'version'}
@@ -258,6 +262,7 @@ Returns true if there is already an entry for PACKAGE.
 
 =cut
 
+# XXX: this part needs to change based on storage
 sub already_added { exists $_[0]->{entries}{$_[1]} }
 
 =item as_string
