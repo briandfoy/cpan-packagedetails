@@ -107,6 +107,10 @@ sub count {
 	return $count;
 	}
 
+=item entries 
+
+DEPRECATED: use C<get_hash>
+
 =item get_hash
 
 Returns the list of entries as an hash reference. The hash key is the
