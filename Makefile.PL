@@ -27,6 +27,11 @@ WriteMakefile(
 		'lib/Entries.pm'        => '$(INST_LIBDIR)/PackageDetails/Entries.pm',
 		'lib/Entry.pm'          => '$(INST_LIBDIR)/PackageDetails/Entry.pm',
 		},
+	'META_MERGE'   => {
+		'resources'             => {
+			'repository' => 'https://github.com/briandfoy/cpan-packagedetails',
+		},
+	},
 
 	clean  => { FILES    => q|CPAN-PackageDetails-* t/test_output| },
 	);
