@@ -12,11 +12,12 @@ sub DESTROY { }
 
 =head1 NAME
 
-CPAN::PackageDetails::Entries - Handle the collection of records of 02packages.details.txt.gz
+CPAN::PackageDetails::Redis - Handle the collection of records of 02packages.details.txt.gz
 
 =head1 SYNOPSIS
 
-Used internally by CPAN::PackageDetails
+Used internally by CPAN::PackageDetails to store the details in a
+redis database.
 
 =head1 DESCRIPTION
 

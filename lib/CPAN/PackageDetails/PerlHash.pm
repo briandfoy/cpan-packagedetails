@@ -12,11 +12,12 @@ sub DESTROY { }
 
 =head1 NAME
 
-CPAN::PackageDetails::Entries - Handle the collection of records of 02packages.details.txt.gz
+CPAN::PackageDetails::PerlHash - Handle the collection of records of 02packages.details.txt.gz
 
 =head1 SYNOPSIS
 
-Used internally by CPAN::PackageDetails
+Used internally by CPAN::PackageDetails to store the stuff in a Perl
+hash.
 
 =head1 DESCRIPTION
 
