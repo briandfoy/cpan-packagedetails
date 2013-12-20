@@ -364,7 +364,7 @@ sub _parse {
 		chomp;
 		my @values = split; # this could be in any order based on columns field.
 		$package_details->add_entry(
-			map { $columns[$_], $values[$_] } 0 .. $#columns
+			map { $columns[$_], $values[$_] } 0 .. $#columns,
 			)
 		}
 
