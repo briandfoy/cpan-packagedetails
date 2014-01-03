@@ -1,5 +1,8 @@
 Changes for CPAN::PackageDetails
 
+0.26 - Fri Jan  3 17:51:32 2014
+	* Get rid of MYMETA
+
 0.25_05 - Mon Apr 18 17:15:56 2011
 	* rjbs made the columns in the packages file line up (mostly)
 
