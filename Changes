@@ -7,7 +7,7 @@ Changes for CPAN::PackageDetails
 	* rjbs made the columns in the packages file line up (mostly)
 
 0.25_04 - Wed Aug 25 18:14:46 2010
-	* Added disallow_alpha_versions. add_entry will complain and not 
+	* Added disallow_alpha_versions. add_entry will complain and not
 	add alpha versions, and as_unique_sorted_list will ignore them.
 	* Add warnings to add_entry and as_unique_sorted_list when
 	version.pm thinks it's run into a bad version string.
@@ -21,7 +21,7 @@ Changes for CPAN::PackageDetails
 	see how CPAN Testers like it first, though.
 
 0.25 - Mon Dec 28 09:22:48 2009
-	* This version notes that you need at least version.pm 
+	* This version notes that you need at least version.pm
 	0.77 to handle the version parsing.
 
 0.2401 - Mon Nov 30 15:12:51 2009
@@ -34,17 +34,17 @@ Changes for CPAN::PackageDetails
 
 0.23 - Thu Nov 19 22:04:35 2009
 	* Re-jiggered the error reporting from check_file. Now
-	you get back a reference that gives you a lot more 
+	you get back a reference that gives you a lot more
 	information. You should call check_file in an eval
 	then look for the error object in $@.
 
 0.22 - Wed Nov 18 19:21:56 2009
-	* check_file() now dies with a reference if it encounters 
+	* check_file() now dies with a reference if it encounters
 	a problem so you have greater control over error
 	handling.
 
 0.21_07 - Tue Nov 17 03:03:56 2009
-	* Fix the version sorting in as_unique_sorted_list. 
+	* Fix the version sorting in as_unique_sorted_list.
 	I'm using version.pm against my better judgement,
 	and that's all messed up with Module::Build.
 
@@ -55,13 +55,13 @@ Changes for CPAN::PackageDetails
 	* I reorganized the code so all the classes are in separate
 	files. Things are so much easier now, and the dispatching
 	is much easier to follow.
-	
+
 0.20 - Fri Jul 17 03:47:00 2009
 	* Write to a temporary file first, then rename to the final
 	name so parallel runs don't write to the same file.
 
 0.19 - Wed Jun 10 18:42:10 2009
-	* Improve performance a bit by re-jiggering the internal 
+	* Improve performance a bit by re-jiggering the internal
 	data structure for easier data slicing
 	* Add the allow_packages_only_once configuration option
 	and the already_added() method to allow better performance
@@ -76,7 +76,7 @@ Changes for CPAN::PackageDetails
 0.17_03 - Thu Mar  5 04:33:46 2009
 	* ->as_unique_sorted_list() returns just the latest version for
 	each package name, no matter what you've added.
-	* Now that I can get the unique list, I can fix the line 
+	* Now that I can get the unique list, I can fix the line
 	count in the header.
 
 0.17 - Fri Feb 13 14:29:33 2009
