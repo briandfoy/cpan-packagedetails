@@ -1,4 +1,4 @@
-Changes for CPAN::PackageDetails
+Revision history for Perl module CPAN::PackageDetails
 
 0.26 - Fri Jan  3 17:51:32 2014
 	* Get rid of MYMETA
