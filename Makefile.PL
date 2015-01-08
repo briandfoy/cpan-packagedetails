@@ -2,16 +2,18 @@ require 5.008;
 use strict;
 use warnings;
 
+use File::Spec::Functions qw(catfile);
 
-my $github    = 'https://github.com/briandfoy/';
-my $main_file = 'lib/';
+my $module    = 'CPAN::PackageDetails';
+my $github    = 'https://github.com/briandfoy/cpan-packagedetails';
+my $main_file = catfile( 'lib', split /::/, "$module.pm" );
 
 my %WriteMakefile = (
-	'NAME'	       => 'CPAN::PackageDetails',
+	'NAME'	        => $module,
 	'ABSTRACT_FROM' => $main_file,
-	'VERSION_FROM' => 'lib/CPAN/PackageDetails.pm',
-	'LICENSE'      => 'perl',
-	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
+	'VERSION_FROM'  => $main_file,
+	'LICENSE'       => 'perl',
+	'AUTHOR'        => 'brian d foy <bdfoy@cpan.org>',
 
 	'CONFIGURE_REQUIRES' => {
 		'ExtUtils::MakeMaker' => '6.64',
@@ -21,10 +23,16 @@ my %WriteMakefile = (
 		},
 
 	'TEST_REQUIRES' => {
-		'Test::More' => '0.94',
+		'Test::More'   => '0.94',
+		'Test::Output' => '0.10',
 		},
 
 	'PREREQ_PM'     => {
+		'CPAN::DistnameInfo'     => '0',
+#		'DBM::Deep'              => '0',
+		'IO::Compress::Gzip'     => '0',
+		'IO::Uncompress::Gunzip' => '0',
+		'version'                => '0.78',
 		},
 
 	'META_MERGE' => {
@@ -39,26 +47,6 @@ my %WriteMakefile = (
 				web    => "$github/issues",
 				},
 			homepage => $github,
-			},
-		},
-	'PREREQ_PM'    => {
-		'CPAN::DistnameInfo'     => '0',
-#		'DBM::Deep'              => '0',
-		'Test::More'             => '0',
-		'Test::Output'           => '0.10',
-		'IO::Compress::Gzip'     => '0',
-		'IO::Uncompress::Gunzip' => '0',
-		'version'                => '0.78',
-		},
-
-	'META_MERGE'   => {
-		'meta-spec' => { version => '2' },
-		'resources' => {
-			'repository' => {
-				type => 'git',
-				web  => 'https://github.com/briandfoy/cpan-packagedetails',
-				url  => 'git@github.com:briandfoy/cpan-packagedetails.git',
-				},
 			},
 		},
 
