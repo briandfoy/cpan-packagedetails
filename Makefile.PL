@@ -53,7 +53,7 @@ my %WriteMakefile = (
 			},
 		},
 
-	clean  => { FILES    => q|CPAN-PackageDetails-* t/test_output| },
+	clean  => { FILES    => q|$dist-* t/test_output| },
 	);
 
 sub arguments { \%WriteMakefile }
