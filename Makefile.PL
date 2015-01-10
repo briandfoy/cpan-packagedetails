@@ -1,10 +1,12 @@
 require 5.008;
+
+package CPAN::PackageDetails;
 use strict;
 use warnings;
 
 use File::Spec::Functions qw(catfile);
 
-my $module    = 'CPAN::PackageDetails';
+my $module    = __PACKAGE__;
 ( my $dist = $module ) =~ s/::/-/g;
 
 my $github    = 'https://github.com/briandfoy/cpan-packagedetails';
