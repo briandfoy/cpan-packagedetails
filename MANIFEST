@@ -8,6 +8,7 @@ corpus/cpan/L/LO/LOCAL/Local-Bar-4.56.tar.gz
 corpus/cpan/L/LO/LOCAL/Local-Foo-1.23.tar.gz
 corpus/good/no_tricks.txt.gz
 examples/make_02packages.pl
+INSTALL.SKIP
 lib/CPAN/PackageDetails.pm
 lib/CPAN/PackageDetails/Entries.pm
 lib/CPAN/PackageDetails/Entry.pm
