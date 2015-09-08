@@ -10,6 +10,8 @@ use version;
 
 sub DESTROY { }
 
+=encoding utf8
+
 =head1 NAME
 
 CPAN::PackageDetails::Redis - Handle the collection of records of 02packages.details.txt.gz

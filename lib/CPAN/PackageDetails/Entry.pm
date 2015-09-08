@@ -7,6 +7,8 @@ $VERSION = '0.26';
 
 use Carp;
 
+=encoding utf8
+
 =head1 NAME
 
 CPAN::PackageDetails::Entry - Handle a single record of 02packages.details.txt.gz

@@ -7,6 +7,8 @@ $VERSION = '0.26';
 
 use Carp;
 
+=encoding utf8
+
 =head1 NAME
 
 CPAN::PackageDetails::Header - Handle the header of 02packages.details.txt.gz

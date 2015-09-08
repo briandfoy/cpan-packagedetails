@@ -14,6 +14,8 @@ BEGIN {
 	$VERSION = '0.26';
 	}
 
+=encoding utf8
+
 =head1 NAME
 
 CPAN::PackageDetails - Create or read 02packages.details.txt.gz

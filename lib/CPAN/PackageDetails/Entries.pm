@@ -10,6 +10,8 @@ use version;
 
 sub DESTROY { }
 
+=encoding utf8
+
 =head1 NAME
 
 CPAN::PackageDetails::Entries - Handle the collection of records of 02packages.details.txt.gz
@@ -107,7 +109,7 @@ sub count {
 	return $count;
 	}
 
-=item entries 
+=item entries
 
 DEPRECATED: use C<get_hash>
 
