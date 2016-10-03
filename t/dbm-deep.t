@@ -1,7 +1,10 @@
 #!perl
-use Test::More tests => 19;
+use Test::More;
 use strict;
 use warnings;
+
+plan eval "require DBM::Deep; 1" ? 
+	(tests => 19) : (skip_all => 'You need DBM::Deep');
 
 use File::Spec::Functions;
 use File::Temp;
@@ -75,3 +78,4 @@ else
 	{
 	print "Keeping file $dbmfile for debugging";
 	}
+

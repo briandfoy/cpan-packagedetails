@@ -11,7 +11,7 @@ use File::Basename;
 use File::Spec::Functions;
 
 BEGIN {
-	$VERSION = '0.25_04';
+	$VERSION = '0.25_06';
 	}
 
 =head1 NAME
@@ -27,12 +27,12 @@ CPAN::PackageDetails - Create or read 02packages.details.txt.gz
 
 	my $count      = $package_details->count;
 
-	my $records    = $package_details->entries;
+	my $records    = $package_details->entries->get_hash;
 
 	foreach my $record ( @$records )
 		{
 		# See CPAN::PackageDetails::Entry too
-		print join "\t", map { $record->$_() } ('package name', 'version', 'path')
+		# print join "\t", map { $record->$_() } ('package name', 'version', 'path')
 		print join "\t", map { $record->$_() } $package_details->columns_as_list;
 		}
 
@@ -118,13 +118,11 @@ in C<CPAN::PackageDetails::Entries>.
 
 BEGIN {
 my $class_counter = 0;
-sub new
-	{
+sub new {
 	my( $class, %args ) = @_;
 
 	my( $ref, $bless_class ) = do {
-		if( exists $args{dbmdeep} )
-			{
+		if( exists $args{dbmdeep} ) {
 			eval { require DBM::Deep };
 			if( $@ ) {
 				croak "You must have DBM::Deep installed and discoverable to use the dbmdeep feature";
@@ -140,8 +138,7 @@ sub new
 			@{"${single_class}::ISA"} = ( $class , 'DBM::Deep' );
 			( $ref, $single_class );
 			}
-		else
-			{
+		else {
 			( {}, $class );
 			}
 		};
@@ -180,8 +177,17 @@ BEGIN {
 # so I need to intercept them at the top-level and redirect
 # them to the right delegate
 my %Dispatch = (
-		header  => { map { $_, 1 } qw(default_headers get_header set_header header_exists columns_as_list) },
-		entries => { map { $_, 1 } qw(add_entry count as_unique_sorted_list already_added allow_packages_only_once disallow_alpha_versions get_entries_by_package get_entries_by_version get_entries_by_path get_entries_by_distribution) },
+		header  => { map { $_, 1 } qw(
+			default_headers get_header set_header header_exists
+			columns_as_list
+			) },
+		entries => { map { $_, 1 } qw(
+			add_entry count as_unique_sorted_list already_added
+			allow_packages_only_once disallow_alpha_versions
+			get_entries_by_package get_entries_by_version
+			get_entries_by_path get_entries_by_distribution
+			allow_suspicious_names get_hash
+			) },
 	#	entry   => { map { $_, 1 } qw() },
 		);
 
@@ -190,14 +196,12 @@ my %Dispatchable = map { #inverts %Dispatch
 	map { $_, $class } keys %{$Dispatch{$class}}
 	} keys %Dispatch;
 
-sub can
-	{
+sub can {
 	my( $self, @methods ) = @_;
 
 	my $class = ref $self || $self; # class or instance
 
-	foreach my $method ( @methods )
-		{
+	foreach my $method ( @methods ) {
 		next if
 			defined &{"${class}::$method"} ||
 			exists $Dispatchable{$method}  ||
@@ -208,8 +212,7 @@ sub can
 	return 1;
 	}
 
-sub AUTOLOAD
-	{
+sub AUTOLOAD {
 	my $self = shift;
 
 
@@ -217,17 +220,14 @@ sub AUTOLOAD
 	carp "There are no AUTOLOADable class methods: $AUTOLOAD" unless ref $self;
 	( my $method = $AUTOLOAD ) =~ s/.*:://;
 
-	if( exists $Dispatchable{$method} )
-		{
+	if( exists $Dispatchable{$method} ) {
 		my $delegate = $Dispatchable{$method};
 		return $self->$delegate()->$method(@_)
 		}
-	elsif( $self->header_exists( $method ) )
-		{
+	elsif( $self->header_exists( $method ) ) {
 		return $self->header->get_header( $method );
 		}
-	else
-		{
+	else {
 		carp "No such method as $method!";
 		return;
 		}
@@ -249,6 +249,7 @@ my %defaults = (
 
 	allow_packages_only_once => 1,
 	disallow_alpha_versions  => 0,
+	allow_suspicious_names   => 0,
 	);
 
 sub init
@@ -258,14 +259,12 @@ sub init
 	my %config = ( %defaults, %args );
 
 	# we'll delegate everything, but also try to hide the mess from the user
-	foreach my $key ( map { "${_}_class" } qw(header entries entry) )
-		{
+	foreach my $key ( map { "${_}_class" } qw(header entries entry) ) {
 		$self->{$key}  = $config{$key};
 		delete $config{$key};
 		}
 
-	foreach my $class ( map { $self->$_ } qw(header_class entries_class entry_class) )
-		{
+	foreach my $class ( map { $self->$_ } qw(header_class entries_class entry_class) ) {
 		eval "require $class";
 		}
 
@@ -275,6 +274,7 @@ sub init
 		entry_class              => $self->entry_class,
 		columns                  => [ split /,\s+/, $config{columns} ],
 		allow_packages_only_once => $config{allow_packages_only_once},
+		allow_suspicious_names   => $config{allow_suspicious_names},
 		disallow_alpha_versions  => $config{disallow_alpha_versions},
 		) unless exists $self->{entries};
 
@@ -309,12 +309,10 @@ underscores. For instance:
 
 =cut
 
-sub read
-	{
-	my( $class, $file ) = @_;
+sub read {
+	my( $class, $file, %args ) = @_;
 
-	unless( defined $file )
-		{
+	unless( defined $file ) {
 		carp "Missing argument!";
 		return;
 		}
@@ -327,7 +325,7 @@ sub read
 		return;
 		};
 
-	my $self = $class->_parse( $fh );
+	my $self = $class->_parse( $fh, %args );
 
 	$self->{source_file} = $file;
 
@@ -343,29 +341,26 @@ C<read> method.
 
 sub source_file { $_[0]->{source_file} }
 
-sub _parse
-	{
-	my( $class, $fh ) = @_;
+sub _parse {
+	my( $class, $fh, %args ) = @_;
 
-	my $package_details = $class->new;
+	my $package_details = $class->new( %args );
 
-	while( <$fh> ) # header processing
-		{
+	while( <$fh> ) { # header processing
+		last if /\A\s*\Z/;
 		chomp;
 		my( $field, $value ) = split /\s*:\s*/, $_, 2;
 
-		$field = lc $field;
+		$field = lc( $field || '' );
 		$field =~ tr/-/_/;
 
 		carp "Unknown field value [$field] at line $.! Skipping..."
 			unless 1; # XXX should there be field name restrictions?
 		$package_details->set_header( $field, $value );
-		last if /^\s*$/;
 		}
 
 	my @columns = $package_details->columns_as_list;
-	while( <$fh> ) # entry processing
-		{
+	while( <$fh> ) { # entry processing
 		chomp;
 		my @values = split; # this could be in any order based on columns field.
 		$package_details->add_entry(
@@ -387,12 +382,10 @@ it cannot open OUTPUT_FILE for writing, or if it cannot rename the file.
 
 =cut
 
-sub write_file
-	{
+sub write_file {
 	my( $self, $output_file ) = @_;
 
-	unless( defined $output_file )
-		{
+	unless( defined $output_file ) {
 		carp "Missing argument!";
 		return;
 		}
@@ -407,8 +400,7 @@ sub write_file
 	$self->write_fh( $fh );
 	$fh->close;
 
-	unless( rename "$output_file.$$", $output_file )
-		{
+	unless( rename "$output_file.$$", $output_file ) {
 		carp "Could not rename temporary file to $output_file!\n";
 		return;
 		}
@@ -422,8 +414,7 @@ Formats the object as a string and writes it to FILEHANDLE
 
 =cut
 
-sub write_fh
-	{
+sub write_fh {
 	my( $self, $fh ) = @_;
 
 	print $fh $self->header->as_string, $self->entries->as_string;
@@ -470,8 +461,7 @@ sub ENTRY_COUNT_MISMATCH () { 1 }
 sub MISSING_IN_REPO      () { 2 }
 sub MISSING_IN_FILE      () { 3 }
 
-sub check_file
-	{
+sub check_file {
 	my( $either, $file, $cpan_path ) = @_;
 
 	# works with a class or an instance. We have to create a new
@@ -490,8 +480,7 @@ sub check_file
 		filename    => $file,
 		cwd         => cwd(),
 		};
-	unless( -e $file )
-		{
+	unless( -e $file ) {
 		$error->{missing_file}         = 1;
 		$error->{error_count}         +=  1;
 		}
@@ -506,24 +495,21 @@ sub check_file
 	my $header_count = $packages->get_header( 'line_count' );
 	my $entries_count = $packages->count;
 
-	unless( $header_count )
-		{
+	unless( $header_count ) {
 		$error->{entry_count_mismatch} = 1;
 		$error->{line_count}           = $header_count;
 		$error->{entry_count}          = $entries_count;
 		$error->{error_count}         +=  1;
 		}
 
-	unless( $header_count == $entries_count )
-		{
+	unless( $header_count == $entries_count ) {
 		$error->{entry_count_mismatch} = 1;
 		$error->{line_count}           = $header_count;
 		$error->{entry_count}          = $entries_count;
 		$error->{error_count}         +=  1;
 		}
 
-	if( $cpan_path )
-		{
+	if( $cpan_path ) {
 		my $missing_in_file = $packages->check_for_missing_dists_in_file( $cpan_path );
 		my $missing_in_repo = $packages->check_for_missing_dists_in_repo( $cpan_path );
 
@@ -550,14 +536,12 @@ error output.
 
 =cut
 
-sub check_for_missing_dists_in_repo
-	{
+sub check_for_missing_dists_in_repo {
 	my( $packages, $cpan_path ) = @_;
 
 	my @missing;
 	my( $entries ) = $packages->as_unique_sorted_list;
-	foreach my $entry ( @$entries )
-		{
+	foreach my $entry ( @$entries ) {
 		my $path = $entry->path;
 
 		my $native_path = catfile( $cpan_path, split m|/|, $path );
@@ -579,8 +563,7 @@ error output.
 
 =cut
 
-sub check_for_missing_dists_in_file
-	{
+sub check_for_missing_dists_in_file {
 	my( $packages, $cpan_path ) = @_;
 
 	my $dists = $packages->_get_repo_dists( $cpan_path );
@@ -592,8 +575,7 @@ sub check_for_missing_dists_in_file
 
 	my( $entries ) = $packages->as_unique_sorted_list;
 
-	foreach my $entry ( @$entries )
-		{
+	foreach my $entry ( @$entries ) {
 		my $path = $entry->path;
 		my $native_path = catfile( $cpan_path, split m|/|, $path );
 		delete $files{$native_path};
@@ -602,15 +584,13 @@ sub check_for_missing_dists_in_file
 	[ keys %files ];
 	}
 
-sub _filter_older_dists
-	{
+sub _filter_older_dists {
 	my( $self, $array ) = @_;
 
 	my %Seen;
 	my @order;
 	require  CPAN::DistnameInfo;
-	foreach my $path ( @$array )
-		{
+	foreach my $path ( @$array ) {
 		my( $basename, $directory, $suffix ) = fileparse( $path, qw(.tar.gz .tgz .zip .tar.bz2) );
 		my( $name, $version, $developer ) = CPAN::DistnameInfo::distname_info( $basename );
 		my $tuple = [ $path, $name, $version ];
@@ -625,14 +605,12 @@ sub _filter_older_dists
 		}
 
 	@$array = map {
-		if( exists $Seen{$_} )
-			{
+		if( exists $Seen{$_} ) {
 			my $dist = $Seen{$_}[0];
 			delete $Seen{$_};
 			$dist;
 			}
-		else
-			{
+		else {
 			()
 			}
 		} @order;
@@ -641,8 +619,7 @@ sub _filter_older_dists
 	}
 
 
-sub _distname_info
-	{
+sub _distname_info {
 	my $file = shift or return;
 
 	my ($dist, $version) = $file =~ /^
@@ -703,29 +680,24 @@ sub _distname_info
 
 	# deal with perl versions, merely to see if it is a dev version
 	my $dev;
-	if( length $version )
-		{
+	if( length $version ) {
 		$dev = do {
-			if ($file =~ /^perl-?\d+\.(\d+)(?:\D(\d+))?(-(?:TRIAL|RC)\d+)?$/)
-				{
+			if ($file =~ /^perl-?\d+\.(\d+)(?:\D(\d+))?(-(?:TRIAL|RC)\d+)?$/) {
 				 1 if (($1 > 6 and $1 & 1) or ($2 and $2 >= 50)) or $3;
 				}
-			elsif ($version =~ /\d\D\d+_\d/)
-				{
+			elsif ($version =~ /\d\D\d+_\d/) {
 				1;
 				}
 			};
 		}
-	else
-		{
+	else {
 		$version = undef;
 		}
 
 	($dist, $version, $dev);
 	}
 
-sub _get_repo_dists
-	{
+sub _get_repo_dists {
 	my( $self, $cpan_home ) = @_;
 
 	my @files = ();
@@ -865,7 +837,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009, brian d foy, All Rights Reserved.
+Copyright (c) 2009-2013, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 

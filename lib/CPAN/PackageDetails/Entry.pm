@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.25_04';
+$VERSION = '0.25_06';
 
 use Carp;
 
@@ -39,14 +39,15 @@ Create a new entry
 
 =cut
 
-sub new
-	{
+sub new {
 	my( $class, %args ) = @_;
 
 	bless { %args }, $class
 	}
 
 =item path
+
+=item author
 
 =item version
 
@@ -56,9 +57,10 @@ Access values of the entry.
 
 =cut
 
-sub path         { $_[0]->{path} }
-sub version      { $_[0]->{version} }
-sub package_name { $_[0]->{'package name'} }
+sub path         { $_[0]->{path}                    }
+sub author       { ( split m|/|, $_[0]->{path} )[2] }
+sub version      { $_[0]->{version}                 }
+sub package_name { $_[0]->{'package name'}          }
 
 =item as_string( @column_names )
 
@@ -70,15 +72,14 @@ literal string 'undef' to preserve the columns in the output.
 
 =cut
 
-sub as_string
-	{
+sub as_string {
 	my( $self, @columns ) = @_;
 
 	no warnings 'uninitialized';
 	# can't check defined() because that let's the empty string through
 
-  return sprintf "%-34s %5s  %s\n",
-      map { length $self->{$_} ? $self->{$_} : 'undef' } @columns;
+	return sprintf "%-34s %5s  %s\n",
+		map { length $self->{$_} ? $self->{$_} : 'undef' } @columns;
 	}
 
 =back
@@ -100,7 +101,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009, brian d foy, All Rights Reserved.
+Copyright (c) 2009-2013, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 
