@@ -454,7 +454,7 @@ sub get_entries_by_path
 
 This source is in Github:
 
-	http://github.com/briandfoy/cpan-packagedetails
+	https://github.com/briandfoy/cpan-packagedetails
 
 =head1 AUTHOR
 
