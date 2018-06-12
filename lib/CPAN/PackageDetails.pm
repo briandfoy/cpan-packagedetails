@@ -3,16 +3,13 @@ use strict;
 use warnings;
 
 use subs qw();
-use vars qw($VERSION);
 
 use Carp qw(carp croak cluck confess);
 use Cwd;
 use File::Basename;
 use File::Spec::Functions;
 
-BEGIN {
-	$VERSION = '0.26';
-	}
+our $VERSION = '0.261';
 
 =encoding utf8
 

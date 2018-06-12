@@ -2,8 +2,7 @@ package CPAN::PackageDetails::Redis;
 use strict;
 use warnings;
 
-use vars qw($VERSION);
-$VERSION = '0.26';
+our $VERSION = '0.261';
 
 use Carp;
 use version;
