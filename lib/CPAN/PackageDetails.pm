@@ -424,7 +424,7 @@ sub write_fh {
 =item check_file( FILE, CPAN_PATH )
 
 This method takes an existing F<02packages.details.txt.gz> named in FILE and
-the the CPAN root at CPAN_PATH (to append to the relative paths in the
+the CPAN root at CPAN_PATH (to append to the relative paths in the
 index), then checks the file for several things:
 
 	1. That there are entries in the file
