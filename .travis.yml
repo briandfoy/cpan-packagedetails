@@ -4,6 +4,12 @@
 
 sudo: false
 
+dist: trusty
+
+cache:
+    directories:
+    - $HOME/.perlbrew-cache
+
 language: perl
 perl:
     - "5.10"
@@ -29,6 +35,10 @@ matrix:
 before_install:
     - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
     - source ~/travis-perl-helpers/init --auto
+    - build-perl
+    - perl -V
+    - build-dist
+    - cd $BUILD_DIR
 
 install:
     - cpanm --quiet --installdeps --notest .
