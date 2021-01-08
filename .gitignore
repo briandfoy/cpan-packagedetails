@@ -38,3 +38,4 @@ nyt*
 nytprof.out
 pm_to_blib
 t/test_output
+*.icould
