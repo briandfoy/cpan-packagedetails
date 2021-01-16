@@ -38,7 +38,8 @@ nyt*
 nytprof.out
 pm_to_blib
 t/test_output
-*.icould
+*.icloud
+
 MANIFEST*[123456789]
 Changes*[123456789]
 
