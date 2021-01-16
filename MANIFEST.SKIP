@@ -70,6 +70,6 @@ nytprof
 ^02packages.*gz
 \bMANIFEST\s\d
 \bChanges\s\d
-
+\.icloud$
 \A\.github\b
 
