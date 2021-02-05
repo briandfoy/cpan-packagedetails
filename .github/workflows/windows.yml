@@ -7,10 +7,14 @@ on:
         tags-ignore:
             - 'release-*'
         path-ignore:
-            - 'README.pod'
-            - 'LICENSE'
+            - '.appveyor.yml'
+            - '.github/**'
+            - '.gitignore'
+            - '.releaserc'
             - 'Changes'
-        pull_request:
+            - 'LICENSE'
+            - 'README.pod'
+       pull_request:
 
 jobs:
     perl:
