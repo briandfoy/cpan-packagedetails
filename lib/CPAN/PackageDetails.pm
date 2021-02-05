@@ -11,9 +11,7 @@ use Cwd;
 use File::Basename;
 use File::Spec::Functions;
 
-our $VERSION;
-
-BEGIN { $VERSION = '0.262' }
+our $VERSION = '0.263'
 
 =encoding utf8
 

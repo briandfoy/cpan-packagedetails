@@ -4,7 +4,7 @@ package CPAN::PackageDetails::Header;
 use strict;
 use warnings;
 
-our $VERSION = '0.261';
+our $VERSION = '0.263';
 
 use Carp;
 
