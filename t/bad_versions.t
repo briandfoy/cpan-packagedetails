@@ -27,7 +27,6 @@ foreach my $v ( @bad_versions ) {
 	like( $w, qr/^add_entry has a problem/, "version string [$v] gives a warning from add_entry" )
 	}
 
-#my @foo = $packages->as_unique_sorted_list;
 done_testing();
 
 __END__
