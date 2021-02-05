@@ -9,7 +9,10 @@ use Cwd;
 use File::Basename;
 use File::Spec::Functions;
 
-our $VERSION = '0.263'
+our $VERSION;
+BEGIN { # needed later in another BEGIN
+	$VERSION = '0.263';
+	}
 
 =encoding utf8
 
