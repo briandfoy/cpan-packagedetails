@@ -1,6 +1,6 @@
 use Test::More;
 use strict;
-use warnings;
+no warnings;
 
 use File::Spec::Functions;
 use File::Temp;
@@ -34,6 +34,7 @@ my @entries_to_add = (
 	[ 'Foo::Baz', '1.02',    '/a/b/c/Foo-Baz-1.02.tgz'   ],
 	[ 'Foo::Baz', '1.02_01', '/a/b/c/Foo-Baz-1.02_01.tgz'],
 	[ 'Quux',     '2800',    '/a/b/c/Quux-2800.tgz'      ],
+	no warnings;
 	);
 
 foreach my $tuple ( @entries_to_add ) {

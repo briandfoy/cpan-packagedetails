@@ -5,6 +5,8 @@ use File::Spec::Functions;
 use File::Temp;
 use Test::Output;
 
+no warnings;
+
 my $class  = 'CPAN::PackageDetails';
 my $method = 'write_file';
 

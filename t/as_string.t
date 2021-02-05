@@ -28,6 +28,7 @@ my @entries_to_add = (
 	);
 
 foreach my $tuple ( @entries_to_add ) {
+	no warnings;
 	$package_details->add_entry(
 		'package name' => $tuple->[0],
 		version        => $tuple->[1],

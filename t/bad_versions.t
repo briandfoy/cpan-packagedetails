@@ -1,4 +1,5 @@
 use Test::More;
+use warnings;
 
 my $class = 'CPAN::PackageDetails';
 use_ok( $class );
