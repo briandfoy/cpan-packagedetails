@@ -125,6 +125,7 @@ sub entries  {
 	carp "entries is deprecated. Use get_hash instead";
 	&get_hash;
 	}
+
 sub get_hash { $_[0]->{entries} }
 
 =item allow_packages_only_once( [ARG] )
@@ -316,7 +317,7 @@ sub as_unique_sorted_list {
 
 		my( $k1, $k2 ) = ( $self->columns )[0,1];
 
-		my $e = $self->entries;
+		my $e = $self->get_hash;
 
 		# We only want the latest versions of everything:
 		foreach my $package ( sort keys %$e ) {
