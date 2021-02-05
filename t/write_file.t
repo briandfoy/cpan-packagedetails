@@ -18,7 +18,7 @@ ok( -e $output_dir, 'Output directory [$output_dir] exists' );
 my $regression_dir = catfile( qw(t test_regression) );
 ok( -e $regression_dir, 'Regression directory [$regression_dir] exists' );
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Test with nothing given to new, and no entries
 {
 my $basename = 'no_entries.gz';
@@ -44,7 +44,7 @@ is( md5_hex($output_file), md5_hex($regression_file), "MD5 digests for gzipped f
 }
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Test with nothing given to new, and some entries added
 {
 my $basename = 'three_entries.gz';
@@ -62,10 +62,10 @@ can_ok( $package_details, $method );
 
 my @entries_to_add = (
 	[ 'Foo::Bar', '1.01',    '/a/b/c/Foo-1.01.tgz'],
-	[ 'Foo::Baz', '1.02_01', '/a/b/c/Foo-Baz-1.02_01.tgz'],	
-	[ 'Quux',     '2800',    '/a/b/c/Quux-2800.tgz'],	
+	[ 'Foo::Baz', '1.02_01', '/a/b/c/Foo-Baz-1.02_01.tgz'],
+	[ 'Quux',     '2800',    '/a/b/c/Quux-2800.tgz'],
 	);
-	
+
 foreach my $tuple ( @entries_to_add )
 	{
 	$package_details->add_entry(
@@ -74,8 +74,8 @@ foreach my $tuple ( @entries_to_add )
 		path           => $tuple->[2],
 		);
 	}
-	
-is( $package_details->count, scalar @entries_to_add, 
+
+is( $package_details->count, scalar @entries_to_add,
 		"Count is the same number as added entries");
 
 ok( $package_details->$method( $output_file ), "$method returns true for $output_file" );
@@ -89,7 +89,7 @@ is( md5_hex($output_file), md5_hex($regression_file), "MD5 digests for gzipped f
 
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Test that it fails if I don't give it a filename
 {
 my $package_details = $class->new;
@@ -102,7 +102,7 @@ stderr_like
 	"$method fails without a filename";
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Test that it fails if I don't give it a bad filename
 {
 my $bad_dir  = catfile( qw(tt foo bar baz));

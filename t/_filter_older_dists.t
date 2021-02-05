@@ -1,4 +1,3 @@
-#!perl
 use strict;
 use warnings;
 
@@ -14,10 +13,10 @@ can_ok( $class, $method );
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # try it with relative paths and no older dists
 {
-my @list = qw( 
-	Foo-1.23.tgz 
-	Foo-Bar-3.45.tgz 
-	Bar-2.34.tgz 
+my @list = qw(
+	Foo-1.23.tgz
+	Foo-Bar-3.45.tgz
+	Bar-2.34.tgz
 	);
 
 my @copy = @list;
@@ -29,17 +28,17 @@ is_deeply( \@copy, \@list, "Unique list has the same elements it started with" )
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Try it with relative paths and and an older dist
 {
-my @list = qw( 
+my @list = qw(
 	Foo-1.23.tgz
 	Foo-1.22.tgz
-	Foo-Bar-3.45.tgz 
-	Bar-2.34.tgz 
+	Foo-Bar-3.45.tgz
+	Bar-2.34.tgz
 	);
 
-my @expected = qw( 
+my @expected = qw(
 	Foo-1.23.tgz
-	Foo-Bar-3.45.tgz 
-	Bar-2.34.tgz 
+	Foo-Bar-3.45.tgz
+	Bar-2.34.tgz
 	);
 
 $class->$method( \@list );
@@ -51,12 +50,12 @@ is_deeply( \@list, \@expected, "Filtered list of filenames paths has right paths
 # Try it with absolute paths and and an older dist
 # The older dist comes first in the list
 {
-my @list = qw( 
+my @list = qw(
 	/a/b/c/d/authors/id/B/BDFOY/Test-Data-1.21.tgz
 	/a/b/c/d/authors/id/B/BDFOY/Test-Data-1.22.tgz
 	);
 
-my @expected = qw( 
+my @expected = qw(
 	/a/b/c/d/authors/id/B/BDFOY/Test-Data-1.22.tgz
 	);
 

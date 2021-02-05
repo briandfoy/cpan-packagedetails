@@ -1,10 +1,9 @@
 use Test::More;
+use Test::Output;
 
 use Carp;
 
 $SIG{__DIE__} = \&Carp::confess;
-
-use Test::Output;
 
 my $class  = 'CPAN::PackageDetails';
 my $method = 'AUTOLOAD';
@@ -82,6 +81,6 @@ stderr_like
 	{ eval { $package_details->$auto_method() } }
 	qr/No such method/,
 	"AUTOLOAD carps for bad method $auto_method";
+}
 
 done_testing();
-}
