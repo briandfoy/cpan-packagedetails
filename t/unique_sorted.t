@@ -24,9 +24,6 @@ is( $package_details->allow_packages_only_once, 0, "allow_packages_only_once is 
 
 can_ok( $package_details->entries, $method );
 
-
-# dpan/authors/id/D/DR/DRW/DRW-Constants-v1.15.175254.build-0158.tar.gz
-# dpan/authors/id/D/DR/DRW/DRW-Constants-v1.15.175254.build-0159.tar.gz
 my @entries_to_add = (
 	[ 'Foo::Bar', '1.03',    '/a/b/c/Foo-1.01.tgz'       ],
 	[ 'Foo::Bar', '1.01',    '/a/b/c/Foo-1.01.tgz'       ],
@@ -34,10 +31,10 @@ my @entries_to_add = (
 	[ 'Foo::Baz', '1.02',    '/a/b/c/Foo-Baz-1.02.tgz'   ],
 	[ 'Foo::Baz', '1.02_01', '/a/b/c/Foo-Baz-1.02_01.tgz'],
 	[ 'Quux',     '2800',    '/a/b/c/Quux-2800.tgz'      ],
-	no warnings;
 	);
 
 foreach my $tuple ( @entries_to_add ) {
+	no warnings;
 	my $rc = eval { $package_details->add_entry(
 		'package name' => $tuple->[0],
 		version        => $tuple->[1],
