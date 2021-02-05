@@ -4,8 +4,6 @@ package CPAN::PackageDetails;
 use strict;
 use warnings;
 
-use subs qw();
-
 use Carp qw(carp croak cluck confess);
 use Cwd;
 use File::Basename;
