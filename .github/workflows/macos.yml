@@ -6,7 +6,7 @@ on:
             - '*'
         tags-ignore:
             - 'release-*'
-        path-ignore:
+        paths-ignore:
             - '.appveyor.yml'
             - '.github/**'
             - '.gitignore'
