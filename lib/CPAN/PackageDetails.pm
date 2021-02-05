@@ -1,3 +1,5 @@
+use 5.008;
+
 package CPAN::PackageDetails;
 use strict;
 use warnings;

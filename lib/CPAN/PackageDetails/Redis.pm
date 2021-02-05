@@ -1,3 +1,5 @@
+use 5.008;
+
 package CPAN::PackageDetails::Redis;
 use strict;
 use warnings;
