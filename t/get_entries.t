@@ -1,4 +1,4 @@
-use Test::More tests => 19;
+use Test::More;
 use strict;
 use warnings;
 
@@ -70,3 +70,4 @@ foreach my $distribution ( @distributions ) {
 
 }
 
+done_testing();

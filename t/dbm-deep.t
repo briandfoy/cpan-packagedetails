@@ -1,4 +1,3 @@
-#!perl
 use Test::More;
 use strict;
 use warnings;
@@ -77,3 +76,4 @@ else {
 	print "Keeping file $dbmfile for debugging";
 	}
 
+done_testing();

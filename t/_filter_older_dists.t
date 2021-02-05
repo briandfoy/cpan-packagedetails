@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More 'no_plan';
+use Test::More;
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 my $class  = 'CPAN::PackageDetails';
@@ -64,3 +64,5 @@ $class->$method( \@list );
 is( scalar @list, scalar @expected, "Filtered list of absolute paths has the right length" );
 is_deeply( \@list, \@expected, "Filtered list of absolute paths has right paths" );
 }
+
+done_testing();

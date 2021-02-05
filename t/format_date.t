@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 
-use Test::More tests => 4;
+use Test::More;
 
 my $class  = 'CPAN::PackageDetails::Header';
 my $method = 'format_date';
@@ -19,3 +19,4 @@ foreach my $key ( keys %CPANPM_regexes ) {
 	ok( $date =~ m/$regex/, "Matches regex for $key" );
 	}
 
+done_testing();

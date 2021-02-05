@@ -1,4 +1,4 @@
-use Test::More tests => 13;
+use Test::More;
 
 my $class = 'CPAN::PackageDetails';
 use_ok( $class );
@@ -28,6 +28,7 @@ foreach my $v ( @bad_versions ) {
 	}
 
 #my @foo = $packages->as_unique_sorted_list;
+done_testing();
 
 __END__
 0.56yuot

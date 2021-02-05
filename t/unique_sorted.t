@@ -1,4 +1,4 @@
-use Test::More tests => 19;
+use Test::More;
 use strict;
 use warnings;
 
@@ -71,3 +71,4 @@ $package_details->write_fh( $fh );
 like( $string, qr/^Line-Count: 3/m, "Line count shows three lines" );
 }
 
+done_testing();

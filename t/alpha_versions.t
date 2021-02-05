@@ -1,4 +1,4 @@
-use Test::More tests => 16;
+use Test::More;
 
 my $class = 'CPAN::PackageDetails';
 use_ok( $class );
@@ -43,3 +43,4 @@ foreach my $v ( @good_versions ) {
 	ok( defined $rc, "Return value is defined for [$v]" );
 	}
 
+done_testing();

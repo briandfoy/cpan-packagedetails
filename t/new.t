@@ -1,4 +1,4 @@
-use Test::More 'no_plan';
+use Test::More;
 
 my $class  = 'CPAN::PackageDetails';
 my $method = 'new';
@@ -46,3 +46,5 @@ isa_ok( $package_details, $class );
 can_ok( $package_details, $param );
 is( $package_details->$param(), $url );
 }
+
+done_testing();

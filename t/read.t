@@ -1,4 +1,4 @@
-use Test::More 'no_plan';
+use Test::More;
 
 use File::Spec::Functions;
 use Test::Output;
@@ -77,3 +77,5 @@ stderr_like
 	qr/Could not open/,
 	"$method carps when I don't give it an argument";
 }
+
+done_testing();

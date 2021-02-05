@@ -1,4 +1,4 @@
-use Test::More 'no_plan';
+use Test::More;
 
 use Digest::MD5 qw(md5_hex);
 use File::Spec::Functions;
@@ -51,3 +51,5 @@ foreach my $package ( keys %$entries ) {
 	}
 
 }
+
+done_testing();

@@ -1,4 +1,4 @@
-use Test::More 'no_plan';
+use Test::More;
 use Test::Output;
 
 my $class  = 'CPAN::PackageDetails';
@@ -46,3 +46,5 @@ can_ok( $package_details->header, $method );
 is( $package_details->$method($param), $value );
 is( $package_details->header->$method($param), $value );
 }
+
+done_testing();

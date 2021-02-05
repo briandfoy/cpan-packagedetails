@@ -6,9 +6,11 @@ BEGIN {
 		CPAN::PackageDetails::Entry
 		);
 	}
+use Test::More;
 
-use Test::More tests => scalar @classes;
 
 foreach my $class ( @classes ) {
+
+done_testing();
 	print "Bail out! $class did not compile\n" unless use_ok( $class );
 	}

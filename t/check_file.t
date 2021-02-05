@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More 'no_plan';
+use Test::More;
 
 use File::Spec::Functions;
 
@@ -43,3 +43,4 @@ foreach my $pair ( @files ) {
 		);
 	}
 
+done_testing();

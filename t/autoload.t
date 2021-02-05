@@ -1,4 +1,4 @@
-use Test::More 'no_plan';
+use Test::More;
 
 use Carp;
 
@@ -82,4 +82,6 @@ stderr_like
 	{ eval { $package_details->$auto_method() } }
 	qr/No such method/,
 	"AUTOLOAD carps for bad method $auto_method";
+
+done_testing();
 }

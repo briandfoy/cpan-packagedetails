@@ -1,4 +1,4 @@
-use Test::More 'no_plan';
+use Test::More;
 
 use Digest::MD5 qw(md5_hex);
 use File::Spec::Functions;
@@ -95,3 +95,5 @@ my $rc = eval {
 
 ok( defined $rc, "Re-added $entries[0][0] without a problem (good)" );
 }
+
+done_testing();

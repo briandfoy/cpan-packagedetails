@@ -1,4 +1,4 @@
-use Test::More 'no_plan';
+use Test::More;
 
 use Digest::MD5 qw(md5_hex);
 use File::Spec::Functions;
@@ -118,3 +118,5 @@ stderr_like
 	qr/Could not open/,
 	"$method fails without a bad filename";
 }
+
+done_testing();
