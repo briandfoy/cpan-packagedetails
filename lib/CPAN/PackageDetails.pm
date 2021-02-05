@@ -9,7 +9,7 @@ use Cwd;
 use File::Basename;
 use File::Spec::Functions;
 
-our $VERSION;
+use vars qw( $VERSION );
 BEGIN { # needed later in another BEGIN
 	$VERSION = '0.263';
 	}
