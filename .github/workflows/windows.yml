@@ -5,7 +5,11 @@ on:
         branches:
             - '*'
         tags-ignore:
-            - '*'
+            - 'release-*'
+        path-ignore:
+            - 'README.pod'
+            - 'LICENSE'
+            - 'Changes'
         pull_request:
 
 jobs:
