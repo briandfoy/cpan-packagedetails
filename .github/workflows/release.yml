@@ -1,6 +1,6 @@
 # brian's standard GitHub Actions release config for Perl 5 modules
-# version 20220307.001
-# https://github.com/briandfoy/github_actions
+# version 20220825.001
+# https://github.com/briandfoy/github_workflows
 # https://github.com/features/actions
 # This file is licensed under the Artistic License 2.0
 name: release
