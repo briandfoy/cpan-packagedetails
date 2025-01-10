@@ -11,7 +11,7 @@ use File::Spec::Functions;
 
 use vars qw( $VERSION );
 BEGIN { # needed later in another BEGIN
-	$VERSION = '0.264';
+	$VERSION = '0.265';
 	}
 
 =encoding utf8
