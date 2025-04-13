@@ -63,6 +63,7 @@ my %WriteMakefile = (
 	'TEST_REQUIRES' => {
 		'Test::More'   => '1',
 		'Test::Output' => '0.10',
+		'version'      => '0.86',
 		},
 
 	'PREREQ_PM'     => {
@@ -70,7 +71,7 @@ my %WriteMakefile = (
 #		'DBM::Deep'              => '0',
 		'IO::Compress::Gzip'     => '0',
 		'IO::Uncompress::Gunzip' => '0',
-		'version'                => '0.78',
+		'version'                => '0.86',
 		},
 
 	'META_MERGE' => {
